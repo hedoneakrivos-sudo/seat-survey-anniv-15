@@ -263,11 +263,37 @@ function bandLine(z: Zone, lo: number, hi: number): Pt[] {
     b.n++;
     bins.set(k, b);
   }
-  const pts = [...bins.values()]
+  const raw = [...bins.values()]
     .map((b) => ({ x: b.x / b.n, y: b.y / b.n, s: b.s / b.n }))
     .sort((a, b) => a.s - b.s)
     .map((b): Pt => [b.x, b.y]);
+  const pts = smoothLine(raw, 3, z.poly);
   return z.reversed ? pts.reverse() : pts;
+}
+
+/**
+ * Haluskan polyline (rata-rata bergerak, ujung tetap) supaya baris kursi
+ * jadi lengkungan mulus, bukan zig-zag hasil grid sampel.
+ */
+function smoothLine(line: Pt[], radius: number, poly: Pt[]): Pt[] {
+  if (line.length < 3) return line;
+  let cur = line;
+  for (let pass = 0; pass < 2; pass++) {
+    cur = cur.map((p, i): Pt => {
+      if (i === 0 || i === cur.length - 1) return p;
+      const r = Math.min(radius, i, cur.length - 1 - i);
+      let sx = 0;
+      let sy = 0;
+      for (let k = i - r; k <= i + r; k++) {
+        sx += cur[k][0];
+        sy += cur[k][1];
+      }
+      const q: Pt = [sx / (2 * r + 1), sy / (2 * r + 1)];
+      // jangan sampai penghalusan menarik baris keluar zona (zona cekung)
+      return pointInPolygon(q, poly) ? q : p;
+    });
+  }
+  return cur;
 }
 
 function polylineLength(line: Pt[]): number {
@@ -304,19 +330,30 @@ function resampleAlong(line: Pt[], count: number): Pt[] {
   return out;
 }
 
-/** Tarik titik yang keluar poligon ke sampel terdekat di dalam zona */
-function snapInside(p: Pt, z: Zone): Pt {
+/**
+ * Tarik titik yang keluar poligon ke sampel terdekat di dalam zona yang
+ * belum dekat kursi lain (`placed`), supaya tidak ada dua kursi di titik
+ * yang sama. `gap` = jarak minimum yang diinginkan.
+ */
+function snapInside(p: Pt, z: Zone, placed: Pt[], gap: number): Pt {
   if (pointInPolygon(p, z.poly)) return p;
-  let best: Pt = p;
+  const free = (q: Pt) => placed.every(([x, y]) => (x - q[0]) ** 2 + (y - q[1]) ** 2 >= gap * gap);
+  let best: Pt | null = null;
+  let fallback: Pt = p;
   let bd = Infinity;
+  let bf = Infinity;
   for (const g of z.samples) {
     const d = (g.x - p[0]) ** 2 + (g.y - p[1]) ** 2;
-    if (d < bd) {
+    if (d < bf) {
+      bf = d;
+      fallback = [g.x, g.y];
+    }
+    if (d < bd && free([g.x, g.y])) {
       bd = d;
       best = [g.x, g.y];
     }
   }
-  return best;
+  return best ?? fallback;
 }
 
 /* ---------------- penempatan kursi ---------------- */
@@ -373,8 +410,8 @@ export function buildCategoryGeometry(layout: CategoryLayout, stage: Pt = STAGE_
 
   // pass 2: tempatkan kursi
   const seats: SeatDot[] = [];
-  const zoneOf = new Map<SeatDot, Pt[]>();
   const rows: RowGuide[] = [];
+  const placedIn: Pt[][] = zones.map(() => []);
   layout.rows.forEach((row: RowDef, ri) => {
     const ranges = blockRanges(row, layout.numbering);
     const order: number[] = [];
@@ -386,106 +423,82 @@ export function buildCategoryGeometry(layout: CategoryLayout, stage: Pt = STAGE_
     let cursor = 0;
     const path: Pt[][] = [];
     zones.forEach((z, zi) => {
-      const pts = resampleAlong(lines[ri][zi], counts[ri][zi]).map((p) => snapInside(p, z));
+      const pts: Pt[] = [];
+      for (const p of resampleAlong(lines[ri][zi], counts[ri][zi])) {
+        const q = snapInside(p, z, placedIn[zi], sizes[zi]);
+        pts.push(q);
+        placedIn[zi].push(q);
+      }
       for (const [x, y] of pts) {
         const n = order[cursor++];
         if (n === undefined) break;
         const seat: SeatDot = { row: row.label, n, x, y, r: sizes[zi] };
         seats.push(seat);
-        zoneOf.set(seat, z.poly);
       }
       if (pts.length) path.push(pts);
     });
     rows.push({ row: row.label, path });
   });
 
-  separate(seats, zoneOf);
-  // garis panduan baris mengikuti posisi kursi setelah dipisahkan
-  for (const rg of rows) {
-    const byRow = seats.filter((x) => x.row === rg.row);
-    let i = 0;
-    rg.path = rg.path.map((line) => line.map(() => {
-      const st = byRow[i++];
-      return st ? ([st.x, st.y] as Pt) : line[0];
-    }));
-  }
+  fitSizes(seats);
   return { seats, rows };
 }
 
 /**
- * Pastikan kursi tidak saling tumpuk.
- * 1) Kursi yang terlalu dekat didorong saling menjauh (beberapa iterasi),
- *    tapi gerakan yang membuat kursi keluar zona dibatalkan.
- * 2) Sisa kepadatan: ukuran kursi dikecilkan ke ≤ 90% jarak tetangga
- *    terdekat, jadi tidak ada lagi kotak yang menimpa kotak lain.
- * Pakai grid bucket supaya tetap O(n).
+ * Pastikan kursi tidak saling tumpuk TANPA menggeser posisinya (supaya
+ * baris tetap rapi): ukuran kursi di satu zona diseragamkan ke nilai yang
+ * muat untuk sebagian besar kursi, lalu hanya kursi yang masih bertabrakan
+ * yang dikecilkan sedikit.
  */
-function separate(seats: SeatDot[], zoneOf: Map<SeatDot, Pt[]>) {
+function fitSizes(seats: SeatDot[]) {
   if (seats.length < 2) return;
-  const cellOf = () => Math.max(3, ...seats.map((s) => s.r)) * 1.5;
-  const neighbors = (cell: number) => {
-    const grid = new Map<string, SeatDot[]>();
-    for (const s of seats) {
-      const k = `${Math.floor(s.x / cell)}|${Math.floor(s.y / cell)}`;
-      (grid.get(k) ?? grid.set(k, []).get(k)!).push(s);
-    }
-    return (s: SeatDot) => {
-      const cx = Math.floor(s.x / cell);
-      const cy = Math.floor(s.y / cell);
-      const out: SeatDot[] = [];
-      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) out.push(...(grid.get(`${cx + dx}|${cy + dy}`) ?? []));
-      return out;
-    };
+  const cell = Math.max(3, ...seats.map((s) => s.r)) * 1.5;
+  const grid = new Map<string, SeatDot[]>();
+  for (const s of seats) {
+    const k = `${Math.floor(s.x / cell)}|${Math.floor(s.y / cell)}`;
+    (grid.get(k) ?? grid.set(k, []).get(k)!).push(s);
+  }
+  const near = (s: SeatDot) => {
+    const cx = Math.floor(s.x / cell);
+    const cy = Math.floor(s.y / cell);
+    const out: SeatDot[] = [];
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) out.push(...(grid.get(`${cx + dx}|${cy + dy}`) ?? []));
+    return out;
   };
+  const nn = new Map<SeatDot, number>();
+  for (const s of seats) {
+    let m = Infinity;
+    for (const o of near(s)) if (o !== s) m = Math.min(m, Math.hypot(o.x - s.x, o.y - s.y));
+    nn.set(s, m);
+  }
 
-  for (let iter = 0; iter < 12; iter++) {
-    const near = neighbors(cellOf());
-    let moved = 0;
+  // ukuran seragam per kelompok r awal (= per zona): dari median jarak terdekat
+  const groups = new Map<number, SeatDot[]>();
+  for (const s of seats) (groups.get(s.r) ?? groups.set(s.r, []).get(s.r)!).push(s);
+  for (const g of groups.values()) {
+    const ds = g.map((s) => nn.get(s)!).filter(Number.isFinite).sort((a, b) => a - b);
+    if (!ds.length) continue;
+    const med = ds[Math.floor(ds.length * 0.5)];
+    const size = Math.max(0.8, Math.min(g[0].r, med * 0.8));
+    for (const s of g) s.r = size;
+  }
+
+  // sisa tabrakan (biasanya di sudut zona): kecilkan pasangan itu saja
+  for (let iter = 0; iter < 3; iter++) {
+    let changed = false;
     for (const s of seats) {
       for (const o of near(s)) {
         if (o === s) continue;
-        const want = (s.r + o.r) / 2;
-        let dx = s.x - o.x;
-        let dy = s.y - o.y;
-        let d = Math.hypot(dx, dy);
-        if (d >= want) continue;
-        if (d < 1e-6) {
-          // posisi identik: pisahkan ke arah acak tapi deterministik
-          const a = ((s.n * 131 + s.row.charCodeAt(0) * 17) % 360) * (Math.PI / 180);
-          dx = Math.cos(a);
-          dy = Math.sin(a);
-          d = 1;
-        }
-        const push = ((want - Math.hypot(s.x - o.x, s.y - o.y)) / 2) * 0.6;
-        const poly = zoneOf.get(s);
-        // dekat tepi zona, dorongan penuh bisa keluar poligon: coba yang lebih kecil
-        for (const f of [1, 0.5, 0.25, 0.1]) {
-          const nx: Pt = [s.x + (dx / d) * push * f, s.y + (dy / d) * push * f];
-          if (poly && !pointInPolygon(nx, poly)) continue;
-          s.x = nx[0];
-          s.y = nx[1];
-          moved++;
-          break;
+        const d = Math.hypot(o.x - s.x, o.y - s.y);
+        if (d < (s.r + o.r) / 2 - 1e-9) {
+          const r = Math.max(0.3, d * 0.95);
+          s.r = Math.min(s.r, r);
+          o.r = Math.min(o.r, r);
+          changed = true;
         }
       }
     }
-    if (!moved) break;
-  }
-
-  // sisa tumpukan: kecilkan kursi
-  const near = neighbors(cellOf());
-  for (const s of seats) {
-    let nn = Infinity;
-    for (const o of near(s)) if (o !== s) nn = Math.min(nn, Math.hypot(o.x - s.x, o.y - s.y));
-    if (Number.isFinite(nn)) s.r = Math.max(0.6, Math.min(s.r, nn * 0.9));
-  }
-  // kursi di sebelah kursi kecil juga harus muat: ulangi sekali dengan r tetangga
-  for (const s of seats) {
-    for (const o of near(s)) {
-      if (o === s) continue;
-      const d = Math.hypot(o.x - s.x, o.y - s.y);
-      if (d < (s.r + o.r) / 2) s.r = Math.max(0.6, 2 * d - o.r - 1e-6);
-    }
+    if (!changed) break;
   }
 }
 
