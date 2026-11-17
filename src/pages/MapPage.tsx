@@ -1,0 +1,330 @@
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { SeatmapInteractive, CatChipBar, type MapMode } from '../components/SeatmapInteractive';
+import { CategorySeatMap } from '../components/CategorySeatMap';
+import { CatCounters } from '../components/CatCounters';
+import { CatInfoPanel } from '../components/CatInfoPanel';
+import { HotspotEditor } from '../components/HotspotEditor';
+import { Sheet } from '../components/Sheet';
+import { GlassCard, SmileLoader } from '../components/theme';
+import { Notice } from '../components/ui';
+import { EVENT, getCatInfo } from '../config/catConfig';
+import { getCategory } from '../lib/layout';
+import { useIsDesktop } from '../hooks/useMediaQuery';
+import { useCategoryStats } from '../hooks/useCategoryStats';
+import { useCategorySeats } from '../hooks/useCategorySeats';
+import { useMySeat } from '../hooks/useMySeat';
+import { getSeat } from '../lib/api';
+import type { PublicSeat } from '../lib/types';
+
+const MODE_KEY = 'anniv15.mapMode';
+const loadMode = (): MapMode => {
+  try {
+    return localStorage.getItem(MODE_KEY) === 'clean' ? 'clean' : 'image';
+  } catch {
+    return 'image';
+  }
+};
+
+export default function MapPage() {
+  const [params, setParams] = useSearchParams();
+  // editor hotspot hanya tersedia di dev server
+  if (import.meta.env.DEV && params.get('editor') === '1') return <HotspotEditor />;
+  return <MapView params={params} setParams={setParams} />;
+}
+
+function MapView({
+  params,
+  setParams,
+}: {
+  params: URLSearchParams;
+  setParams: ReturnType<typeof useSearchParams>[1];
+}) {
+  const navigate = useNavigate();
+  const isDesktop = useIsDesktop();
+  const { stats, status } = useCategoryStats();
+  const mine = useMySeat();
+  const [mySeatRow, setMySeatRow] = useState<PublicSeat | null>(null);
+  const [mode, setMode] = useState<MapMode>(loadMode);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [heatmap, setHeatmap] = useState(false);
+  const [swapOnly, setSwapOnly] = useState(false);
+  /** 'venue' = denah isometrik, 'detail' = peta kursi per CAT (?view=detail) */
+  const view: 'venue' | 'detail' = params.get('view') === 'detail' ? 'detail' : 'venue';
+
+  const catParam = Number(params.get('cat'));
+  const selected = getCatInfo(catParam) ? catParam : null;
+  const layout = getCategory(selected);
+  const detail = useCategorySeats(view === 'detail' ? selected : null);
+
+  const update = useCallback(
+    (patch: Record<string, string | null>) =>
+      setParams(
+        (p) => {
+          const n = new URLSearchParams(p);
+          for (const [k, v] of Object.entries(patch)) (v === null ? n.delete(k) : n.set(k, v));
+          return n;
+        },
+        { replace: true },
+      ),
+    [setParams],
+  );
+
+  const select = useCallback(
+    (cat: number) => {
+      update({ cat: String(cat) });
+      if (!isDesktop && view === 'venue') setSheetOpen(true);
+    },
+    [update, isDesktop, view],
+  );
+  const setView = (v: 'venue' | 'detail') => update({ view: v === 'detail' ? 'detail' : null });
+
+  useEffect(() => {
+    if (!mine) return setMySeatRow(null);
+    let off = false;
+    getSeat(mine.id)
+      .then((s) => !off && setMySeatRow(s))
+      .catch(() => {});
+    return () => {
+      off = true;
+    };
+  }, [mine]);
+
+  const toggleMode = () => {
+    const next: MapMode = mode === 'image' ? 'clean' : 'image';
+    setMode(next);
+    try {
+      localStorage.setItem(MODE_KEY, next);
+    } catch {
+      /* noop */
+    }
+  };
+
+  const fill = (cat: number) => navigate(`/isi?cat=${cat}`);
+
+  const totalAll = Object.values(stats).reduce((a, s) => a + s.total, 0);
+  const myCatSeat = selected && mySeatRow?.category === selected ? mySeatRow : null;
+
+  return (
+    <div className="space-y-4">
+      <header className="text-center lg:text-left">
+        <p className="text-pixel text-xs font-bold text-white drop-shadow-[0_1px_0_rgb(0_0_0_/_0.35)] sm:text-sm">
+          {EVENT.subtitle}
+        </p>
+        <h1 className="title-3d mt-1 text-4xl leading-none sm:text-5xl">Pilih CAT kamu</h1>
+        <p className="mt-2 font-semibold text-ink">
+          Tap zona di denah, terus isi seat kamu 😊
+          {status === 'ok' && totalAll > 0 && (
+            <>
+              {' '}
+              <span className="whitespace-nowrap font-extrabold">{totalAll} orang</span> sudah isi.
+            </>
+          )}
+        </p>
+      </header>
+
+      {status === 'error' && <Notice tone="warn">Angka pengisi belum bisa dimuat. Peta tetap bisa dipakai.</Notice>}
+
+      {/* counter live per CAT */}
+      <CatCounters stats={stats} selected={selected} onSelect={select} loading={status === 'loading'} />
+
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-5">
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div
+              role="tablist"
+              aria-label="Tampilan peta"
+              className="flex rounded-full border-2 border-white bg-white/70 p-0.5 dark:border-white/15 dark:bg-white/10"
+            >
+              <ViewTab active={view === 'venue'} onClick={() => setView('venue')}>
+                Denah venue
+              </ViewTab>
+              <ViewTab active={view === 'detail'} onClick={() => setView('detail')} disabled={!selected}>
+                Kursi{selected ? ` CAT ${selected}` : ''}
+              </ViewTab>
+            </div>
+            {view === 'venue' && (
+              <>
+                <Toggle on={heatmap} onClick={() => setHeatmap((v) => !v)} label="Mode heatmap">
+                  🔥<span className="hidden sm:inline"> Heatmap</span>
+                </Toggle>
+                <Toggle on={swapOnly} onClick={() => setSwapOnly((v) => !v)} label="Tampilkan hanya MAU TUKAR">
+                  🔁<span className="hidden sm:inline"> MAU TUKAR</span>
+                </Toggle>
+              </>
+            )}
+            {view === 'venue' && (
+              <button
+                type="button"
+                onClick={toggleMode}
+                aria-pressed={mode === 'clean'}
+                className="focus-ring ml-auto inline-flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-full border-2 border-white bg-white/80 px-2.5 text-sm font-extrabold text-ink sm:px-3 dark:border-white/15 dark:bg-white/10"
+              >
+                {mode === 'image' ? '🖼️' : '🟦'}
+                <span className="hidden sm:inline">{mode === 'image' ? 'Gambar asli' : 'Mode bersih'}</span>
+                <span className="sr-only sm:hidden">{mode === 'image' ? 'Gambar asli, ganti ke mode bersih' : 'Mode bersih, ganti ke gambar asli'}</span>
+              </button>
+            )}
+          </div>
+
+          <GlassCard className="!p-2">
+            {view === 'venue' ? (
+              <>
+                <SeatmapInteractive
+                  selected={selected}
+                  onSelect={select}
+                  stats={stats}
+                  myCategory={mySeatRow?.category ?? null}
+                  mode={mode}
+                  heatmap={heatmap}
+                  swapOnly={swapOnly}
+                  className="h-[46vh] min-h-64 sm:h-[52vh] lg:h-[min(62vh,600px)]"
+                />
+                <div className="px-1 pt-2">
+                  <CatChipBar selected={selected} onSelect={select} stats={status === 'ok' ? stats : undefined} />
+                </div>
+              </>
+            ) : layout ? (
+              <div className="p-1">
+                <CategorySeatMap
+                  key={layout.category}
+                  layout={layout}
+                  seats={detail.seats}
+                  mySeat={myCatSeat ? { row_label: myCatSeat.row_label, seat_number: myCatSeat.seat_number } : null}
+                  mode={mode}
+                  svgClassName="h-[46vh] min-h-64 sm:h-[52vh] lg:h-[min(58vh,560px)]"
+                />
+                {detail.status === 'loading' && (
+                  <p className="mt-1 text-sm text-ink-soft" aria-live="polite">
+                    Memuat kursi…
+                  </p>
+                )}
+                {detail.status === 'error' && <Notice tone="warn">Data kursi belum bisa dimuat.</Notice>}
+                <div className="px-1 pt-2">
+                  <CatChipBar selected={selected} onSelect={select} stats={status === 'ok' ? stats : undefined} />
+                </div>
+              </div>
+            ) : (
+              <p className="p-6 text-center text-ink-soft">Pilih CAT dulu untuk lihat peta kursinya.</p>
+            )}
+          </GlassCard>
+        </div>
+
+        {/* panel kanan (desktop) */}
+        {isDesktop && (
+          <GlassCard as="aside" className="sticky top-24 mt-0">
+            {selected ? (
+              <>
+                <CatInfoPanel category={selected} stats={stats[selected]} onFill={() => fill(selected)} />
+                {view === 'venue' && (
+                  <button
+                    type="button"
+                    onClick={() => setView('detail')}
+                    className="focus-ring mt-2 w-full rounded-full border-2 border-white bg-white/70 py-2.5 text-sm font-extrabold text-ink dark:border-white/15 dark:bg-white/10"
+                  >
+                    🪑 Lihat kursi CAT {selected}
+                  </button>
+                )}
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-3 py-10 text-center">
+                <SmileLoader className="h-14 w-14" spin={false} />
+                <p className="font-display text-xl text-ink">Pilih zona di denah</p>
+                <p className="text-sm text-ink-soft">Arahkan kursor ke zona untuk lihat harga & jumlah pengisi.</p>
+              </div>
+            )}
+          </GlassCard>
+        )}
+      </div>
+
+      {/* bottom sheet (mobile) */}
+      {!isDesktop && selected && (
+        <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)} title={getCatInfo(selected)!.name}>
+          <CatInfoPanel category={selected} stats={stats[selected]} onFill={() => fill(selected)} hideChip />
+          <button
+            type="button"
+            onClick={() => {
+              setSheetOpen(false);
+              setView('detail');
+            }}
+            className="focus-ring mt-2 w-full rounded-full border-2 border-slate-200 bg-white py-3 font-extrabold text-ink dark:border-white/15 dark:bg-white/10"
+          >
+            🪑 Lihat kursi CAT {selected}
+          </button>
+        </Sheet>
+      )}
+
+      {/* tombol utama sticky di mobile */}
+      {!isDesktop && selected && !sheetOpen && (
+        <div className="sticky bottom-3 z-20 flex justify-center">
+          <button
+            type="button"
+            onClick={() => (view === 'detail' ? fill(selected) : setSheetOpen(true))}
+            className="focus-ring inline-flex min-h-14 items-center gap-2 rounded-full bg-gold-400 px-6 font-display text-lg text-gold-ink shadow-3d active:translate-y-[4px] active:shadow-3d-pressed"
+          >
+            <SmileLoader className="h-6 w-6" spin={false} />
+            {view === 'detail' ? `Isi seat di CAT ${selected}` : `Lihat ${getCatInfo(selected)!.name}`}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Toggle({
+  on,
+  onClick,
+  label,
+  children,
+}: {
+  on: boolean;
+  onClick: () => void;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      className={
+        'focus-ring inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border-2 px-2.5 text-sm font-extrabold transition sm:px-3 ' +
+        (on
+          ? 'border-gold-ink bg-gold-400 text-gold-ink'
+          : 'border-white bg-white/80 text-ink dark:border-white/15 dark:bg-white/10')
+      }
+    >
+      {children}
+    </button>
+  );
+}
+
+function ViewTab({
+  active,
+  onClick,
+  disabled,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      onClick={onClick}
+      disabled={disabled}
+      className={
+        'focus-ring min-h-9 rounded-full px-2.5 text-[13px] font-extrabold transition disabled:opacity-40 sm:px-3 sm:text-sm ' +
+        (active ? 'bg-gold-400 text-gold-ink' : 'text-ink')
+      }
+    >
+      {children}
+    </button>
+  );
+}
