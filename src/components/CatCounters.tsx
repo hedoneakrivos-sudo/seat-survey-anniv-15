@@ -62,7 +62,7 @@ function CounterChip({
       onClick={onClick}
       aria-pressed={selected}
       className={cx(
-        'focus-ring flex min-h-16 w-36 shrink-0 flex-col justify-between rounded-3xl border-2 bg-white/80 px-3 py-2 text-left transition dark:bg-white/10',
+        'focus-ring relative flex min-h-16 w-36 shrink-0 flex-col justify-between rounded-3xl border-2 bg-white/80 px-3 py-2 text-left transition dark:bg-white/10',
         selected ? 'border-gold-ink dark:border-gold-400' : 'border-white dark:border-white/15',
       )}
     >
