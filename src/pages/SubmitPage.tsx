@@ -127,12 +127,12 @@ export default function SubmitPage() {
   );
 
   const map = (
-    <GlassCard className="!p-2">
-      <div className="mb-2 flex items-center gap-2 px-1 pt-1">
+    <GlassCard className="rounded-3xl !p-1.5">
+      <div className="mb-1.5 flex items-center gap-2 px-1.5 pt-1.5">
         <div
           role="tablist"
           aria-label="Tampilan peta"
-          className="flex rounded-full border-2 border-white bg-white/70 p-0.5 dark:border-white/15 dark:bg-white/10"
+          className="flex rounded-full bg-sky-50 p-1"
         >
           <Tab active={mapView === 'venue'} onClick={() => setMapView('venue')}>
             Denah
@@ -142,7 +142,7 @@ export default function SubmitPage() {
           </Tab>
         </div>
         {mapView === 'detail' && (
-          <span className="ml-auto text-xs font-bold text-ink-soft">Tap kursi untuk isi Row & No.</span>
+          <span className="ml-auto hidden text-xs text-ink-soft sm:inline">Tap kursi untuk isi Row & No.</span>
         )}
       </div>
       {mapView === 'venue' || !layout ? (
@@ -151,7 +151,7 @@ export default function SubmitPage() {
             selected={category}
             onSelect={pickCategory}
             stats={stats}
-            className={isDesktop ? 'h-[min(60vh,560px)]' : 'h-[38vh] min-h-56'}
+            className={isDesktop ? 'h-[min(60vh,560px)] overflow-hidden rounded-[1.25rem]' : 'aspect-[19/12] w-full overflow-hidden rounded-[1.25rem]'}
           />
           <div className="px-1 pt-2">
             <CatChipBar selected={category} onSelect={pickCategory} stats={stats} />
@@ -176,18 +176,15 @@ export default function SubmitPage() {
   );
 
   const header = (
-    <header className="text-center lg:text-left">
-      <p className="text-pixel text-xs font-bold text-white drop-shadow-[0_1px_0_rgb(0_0_0_/_0.35)] sm:text-sm">
-        {EVENT.subtitle}
-      </p>
-      <h1 id="form-title" className="title-3d mt-1 text-4xl leading-none sm:text-5xl">
-        Kamu duduk di mana?
+    <header>
+      <p className="text-pixel text-xs text-white/85">{EVENT.subtitle}</p>
+      <h1 id="form-title" className="title-3d mt-2 text-4xl sm:text-5xl">
+        Kamu duduk di mana? 🎫
       </h1>
-      <p className="mt-3 font-semibold text-ink">Pilih CAT di denah, terus isi seat kamu 😊</p>
-      <p className="text-pixel mt-2 text-[11px] text-gold-ink sm:text-xs">
-        <span className="rounded-full bg-gold-400 px-2.5 py-1">
-          {EVENT.venue} | {EVENT.dateLabel}
-        </span>
+      <p className="mt-2 text-sm text-white/90 sm:text-base">Pilih CAT di denah, lalu isi seat kamu.</p>
+      <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-ink">
+        <span className="h-1.5 w-1.5 rounded-full bg-gold-500" aria-hidden />
+        {EVENT.venue} · {EVENT.dateLabel}
       </p>
     </header>
   );
@@ -241,7 +238,7 @@ export default function SubmitPage() {
             onClick={() => setDrawerOpen((o) => !o)}
             aria-expanded={drawerOpen}
             aria-controls="seat-drawer"
-            className="focus-ring flex w-full items-center justify-between gap-2 px-4 py-3 font-display text-lg text-ink"
+            className="focus-ring flex w-full items-center justify-between gap-2 px-4 py-3 font-display font-semibold text-lg text-ink"
           >
             {drawerOpen ? (
               <>
@@ -283,8 +280,8 @@ function Tab({
       onClick={onClick}
       disabled={disabled}
       className={
-        'focus-ring min-h-9 rounded-full px-3 text-sm font-extrabold transition disabled:opacity-40 ' +
-        (active ? 'bg-gold-400 text-gold-ink' : 'text-ink')
+        'focus-ring min-h-9 whitespace-nowrap rounded-full px-3.5 text-sm font-medium transition-colors disabled:opacity-40 ' +
+        (active ? 'bg-gold-400 text-gold-ink' : 'text-ink-soft hover:text-ink')
       }
     >
       {children}

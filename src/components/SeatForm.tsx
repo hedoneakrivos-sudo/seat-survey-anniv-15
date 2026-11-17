@@ -182,7 +182,7 @@ export function SeatForm({ initial, patch, selfId, submitLabel, onSubmit, onChan
       {!isDesktop && (
         <div>
           <div className="mb-2 flex items-center justify-between text-sm">
-            <h2 ref={headingRef} tabIndex={-1} className="font-display text-base text-ink outline-none">
+            <h2 ref={headingRef} tabIndex={-1} className="font-display font-semibold text-base text-ink outline-none">
               Langkah {step + 1}/3 · {STEP_TITLES[step]}
             </h2>
           </div>
@@ -190,7 +190,7 @@ export function SeatForm({ initial, patch, selfId, submitLabel, onSubmit, onChan
             {[0, 1, 2].map((s) => (
               <li
                 key={s}
-                className={cx('h-2 rounded-full', s <= step ? 'bg-gold-400 ring-1 ring-gold-ink/40' : 'bg-white/60 dark:bg-white/15')}
+                className={cx('h-2 rounded-full', s <= step ? 'bg-gold-400 ring-1 ring-gold-ink/40' : 'bg-[var(--surface-2)] ')}
               />
             ))}
           </ol>
@@ -212,7 +212,7 @@ export function SeatForm({ initial, patch, selfId, submitLabel, onSubmit, onChan
       {/* ---------------- STEP 1 ---------------- */}
       {showStep(0) && (
         <fieldset className="space-y-4">
-          {isDesktop && <legend className="mb-3 font-display text-lg text-ink">📍 {STEP_TITLES[0]}</legend>}
+          {isDesktop && <legend className="mb-3 font-display font-semibold text-lg text-ink">📍 {STEP_TITLES[0]}</legend>}
 
           <Field id="f-category" label="Category" required error={visibleErr('category')}>
             <Select
@@ -354,7 +354,7 @@ export function SeatForm({ initial, patch, selfId, submitLabel, onSubmit, onChan
       {/* ---------------- STEP 2 ---------------- */}
       {showStep(1) && (
         <fieldset className="space-y-4">
-          {isDesktop && <legend className="mb-3 font-display text-lg text-ink">🙋 {STEP_TITLES[1]}</legend>}
+          {isDesktop && <legend className="mb-3 font-display font-semibold text-lg text-ink">🙋 {STEP_TITLES[1]}</legend>}
           <Field
             id="f-nickname"
             label="Nickname"
@@ -376,7 +376,7 @@ export function SeatForm({ initial, patch, selfId, submitLabel, onSubmit, onChan
           </Field>
 
           <fieldset aria-describedby={visibleErr('sex') ? 'f-sex-msg' : undefined}>
-            <legend className="mb-1.5 block text-sm font-extrabold text-ink">
+            <legend className="mb-1.5 block text-sm font-semibold text-ink">
               Sex <span className="text-red-600 dark:text-red-400" aria-hidden>*</span>
             </legend>
             <div className="grid grid-cols-2 gap-2" role="radiogroup">
@@ -389,11 +389,11 @@ export function SeatForm({ initial, patch, selfId, submitLabel, onSubmit, onChan
                 <label
                   key={val}
                   className={cx(
-                    'flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-full border-2 px-3 py-3 font-extrabold transition',
+                    'flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-full border px-3 py-3 font-semibold transition',
                     'has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold-500',
                     v.sex === val
                       ? 'border-gold-ink bg-gold-400 text-gold-ink shadow-[0_3px_0_0_var(--color-gold-ink)]'
-                      : 'border-white bg-white/85 text-ink dark:border-white/15 dark:bg-white/10',
+                      : 'border-[var(--line)] bg-[var(--surface-2)] text-ink  ',
                   )}
                 >
                   <input
@@ -422,14 +422,14 @@ export function SeatForm({ initial, patch, selfId, submitLabel, onSubmit, onChan
       {/* ---------------- STEP 3 ---------------- */}
       {showStep(2) && (
         <fieldset className="space-y-4">
-          {isDesktop && <legend className="mb-3 font-display text-lg text-ink">🔁 {STEP_TITLES[2]}</legend>}
+          {isDesktop && <legend className="mb-3 font-display font-semibold text-lg text-ink">🔁 {STEP_TITLES[2]}</legend>}
 
           <label
             htmlFor="f-want_swap"
-            className="flex cursor-pointer items-center justify-between gap-4 rounded-3xl border-2 border-white bg-white/85 p-4 dark:border-white/15 dark:bg-white/10"
+            className="flex cursor-pointer items-center justify-between gap-4 rounded-3xl border border-[var(--line)] bg-[var(--surface-2)] p-4"
           >
             <span>
-              <span className="block font-display text-lg text-ink">MAU TUKAR</span>
+              <span className="block font-display font-semibold text-lg text-ink">MAU TUKAR</span>
               <span className="block text-sm text-ink-soft">
                 Aktifkan kalau kamu bersedia tukar seat
               </span>
@@ -443,8 +443,8 @@ export function SeatForm({ initial, patch, selfId, submitLabel, onSubmit, onChan
                 onChange={(e) => set('want_swap', e.target.checked)}
                 className="peer sr-only"
               />
-              <span className="h-8 w-14 rounded-full bg-slate-300 transition peer-checked:bg-orange-500 peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-gold-500 dark:bg-white/25" />
-              <span className="absolute left-1 top-1 h-6 w-6 rounded-full bg-white shadow transition peer-checked:translate-x-6" />
+              <span className="h-8 w-14 rounded-full bg-slate-300 transition peer-checked:bg-orange-500 peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-gold-500" />
+              <span className="absolute left-1 top-1 h-6 w-6 rounded-full bg-[var(--surface-2)] shadow transition peer-checked:translate-x-6" />
             </span>
           </label>
 
@@ -486,7 +486,7 @@ export function SeatForm({ initial, patch, selfId, submitLabel, onSubmit, onChan
         className={cx(
           'flex gap-2',
           !isDesktop &&
-            'sticky bottom-0 z-10 -mx-4 -mb-4 rounded-b-4xl border-t-2 border-white/70 bg-[#eaf6fe] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 dark:border-white/10 dark:bg-[#161d4f]',
+            'sticky bottom-0 z-10 -mx-4 -mb-4 rounded-b-4xl border-t-2 border-white/70 bg-[#eaf6fe] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3  ',
         )}
       >
         {!isDesktop && step > 0 && (

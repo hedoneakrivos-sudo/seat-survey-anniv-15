@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { SeatmapInteractive, CatChipBar, type MapMode } from '../components/SeatmapInteractive';
+import { SeatmapInteractive } from '../components/SeatmapInteractive';
 import { CategorySeatMap } from '../components/CategorySeatMap';
 import { CatCounters } from '../components/CatCounters';
 import { CatInfoPanel } from '../components/CatInfoPanel';
@@ -16,15 +16,6 @@ import { useCategorySeats } from '../hooks/useCategorySeats';
 import { useMySeat } from '../hooks/useMySeat';
 import { getSeat } from '../lib/api';
 import type { PublicSeat } from '../lib/types';
-
-const MODE_KEY = 'anniv15.mapMode';
-const loadMode = (): MapMode => {
-  try {
-    return localStorage.getItem(MODE_KEY) === 'clean' ? 'clean' : 'image';
-  } catch {
-    return 'image';
-  }
-};
 
 export default function MapPage() {
   const [params, setParams] = useSearchParams();
@@ -45,7 +36,6 @@ function MapView({
   const { stats, status } = useCategoryStats();
   const mine = useMySeat();
   const [mySeatRow, setMySeatRow] = useState<PublicSeat | null>(null);
-  const [mode, setMode] = useState<MapMode>(loadMode);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [heatmap, setHeatmap] = useState(false);
   const [swapOnly, setSwapOnly] = useState(false);
@@ -90,34 +80,22 @@ function MapView({
     };
   }, [mine]);
 
-  const toggleMode = () => {
-    const next: MapMode = mode === 'image' ? 'clean' : 'image';
-    setMode(next);
-    try {
-      localStorage.setItem(MODE_KEY, next);
-    } catch {
-      /* noop */
-    }
-  };
-
   const fill = (cat: number) => navigate(`/isi?cat=${cat}`);
 
   const totalAll = Object.values(stats).reduce((a, s) => a + s.total, 0);
   const myCatSeat = selected && mySeatRow?.category === selected ? mySeatRow : null;
 
   return (
-    <div className="space-y-4">
-      <header className="text-center lg:text-left">
-        <p className="text-pixel text-xs font-bold text-white drop-shadow-[0_1px_0_rgb(0_0_0_/_0.35)] sm:text-sm">
-          {EVENT.subtitle}
-        </p>
-        <h1 className="title-3d mt-1 text-4xl leading-none sm:text-5xl">Pilih CAT kamu</h1>
-        <p className="mt-2 font-semibold text-ink">
-          Tap zona di denah, terus isi seat kamu 😊
+    <div className="space-y-6">
+      <header>
+        <p className="text-pixel text-xs text-white/85">{EVENT.subtitle}</p>
+        <h1 className="title-3d mt-2 text-4xl sm:text-5xl">Pilih CAT kamu ☀️</h1>
+        <p className="mt-2 text-sm text-white/90 sm:text-base">
+          Tap zona di denah, lalu isi seat kamu.
           {status === 'ok' && totalAll > 0 && (
             <>
               {' '}
-              <span className="whitespace-nowrap font-extrabold">{totalAll} orang</span> sudah isi.
+              <span className="whitespace-nowrap font-semibold text-white">{totalAll} orang</span> sudah isi.
             </>
           )}
         </p>
@@ -128,16 +106,16 @@ function MapView({
       {/* counter live per CAT */}
       <CatCounters stats={stats} selected={selected} onSelect={select} loading={status === 'loading'} />
 
-      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-5">
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-6">
         <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2">
             <div
               role="tablist"
               aria-label="Tampilan peta"
-              className="flex rounded-full border-2 border-white bg-white/70 p-0.5 dark:border-white/15 dark:bg-white/10"
+              className="flex rounded-full border border-white/90 bg-white/75 p-1"
             >
               <ViewTab active={view === 'venue'} onClick={() => setView('venue')}>
-                Denah venue
+                Denah
               </ViewTab>
               <ViewTab active={view === 'detail'} onClick={() => setView('detail')} disabled={!selected}>
                 Kursi{selected ? ` CAT ${selected}` : ''}
@@ -146,28 +124,18 @@ function MapView({
             {view === 'venue' && (
               <>
                 <Toggle on={heatmap} onClick={() => setHeatmap((v) => !v)} label="Mode heatmap">
-                  🔥<span className="hidden sm:inline"> Heatmap</span>
+                  <span aria-hidden>🔥</span>
+                  <span className="hidden sm:inline">Heatmap</span>
                 </Toggle>
-                <Toggle on={swapOnly} onClick={() => setSwapOnly((v) => !v)} label="Tampilkan hanya MAU TUKAR">
-                  🔁<span className="hidden sm:inline"> MAU TUKAR</span>
+                <Toggle on={swapOnly} onClick={() => setSwapOnly((v) => !v)} label="Tampilkan hanya yang mau tukar">
+                  <span aria-hidden>🔁</span>
+                  <span className="hidden sm:inline">Mau tukar</span>
                 </Toggle>
               </>
             )}
-            {view === 'venue' && (
-              <button
-                type="button"
-                onClick={toggleMode}
-                aria-pressed={mode === 'clean'}
-                className="focus-ring ml-auto inline-flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-full border-2 border-white bg-white/80 px-2.5 text-sm font-extrabold text-ink sm:px-3 dark:border-white/15 dark:bg-white/10"
-              >
-                {mode === 'image' ? '🖼️' : '🟦'}
-                <span className="hidden sm:inline">{mode === 'image' ? 'Gambar asli' : 'Mode bersih'}</span>
-                <span className="sr-only sm:hidden">{mode === 'image' ? 'Gambar asli, ganti ke mode bersih' : 'Mode bersih, ganti ke gambar asli'}</span>
-              </button>
-            )}
           </div>
 
-          <GlassCard className="!p-2">
+          <GlassCard className="overflow-hidden rounded-3xl !p-1.5">
             {view === 'venue' ? (
               <>
                 <SeatmapInteractive
@@ -175,23 +143,18 @@ function MapView({
                   onSelect={select}
                   stats={stats}
                   myCategory={mySeatRow?.category ?? null}
-                  mode={mode}
                   heatmap={heatmap}
                   swapOnly={swapOnly}
-                  className="h-[46vh] min-h-64 sm:h-[52vh] lg:h-[min(62vh,600px)]"
+                  className="aspect-[19/12] w-full overflow-hidden rounded-[1.25rem] lg:aspect-auto lg:h-[min(62vh,600px)]"
                 />
-                <div className="px-1 pt-2">
-                  <CatChipBar selected={selected} onSelect={select} stats={status === 'ok' ? stats : undefined} />
-                </div>
               </>
             ) : layout ? (
-              <div className="p-1">
+              <div className="p-2.5">
                 <CategorySeatMap
                   key={layout.category}
                   layout={layout}
                   seats={detail.seats}
                   mySeat={myCatSeat ? { row_label: myCatSeat.row_label, seat_number: myCatSeat.seat_number } : null}
-                  mode={mode}
                   svgClassName="h-[46vh] min-h-64 sm:h-[52vh] lg:h-[min(58vh,560px)]"
                 />
                 {detail.status === 'loading' && (
@@ -200,19 +163,16 @@ function MapView({
                   </p>
                 )}
                 {detail.status === 'error' && <Notice tone="warn">Data kursi belum bisa dimuat.</Notice>}
-                <div className="px-1 pt-2">
-                  <CatChipBar selected={selected} onSelect={select} stats={status === 'ok' ? stats : undefined} />
-                </div>
               </div>
             ) : (
-              <p className="p-6 text-center text-ink-soft">Pilih CAT dulu untuk lihat peta kursinya.</p>
+              <p className="p-8 text-center text-sm text-ink-soft">Pilih CAT dulu untuk lihat peta kursinya.</p>
             )}
           </GlassCard>
         </div>
 
         {/* panel kanan (desktop) */}
         {isDesktop && (
-          <GlassCard as="aside" className="sticky top-24 mt-0">
+          <GlassCard as="aside" className="sticky top-24 mt-0 rounded-3xl">
             {selected ? (
               <>
                 <CatInfoPanel category={selected} stats={stats[selected]} onFill={() => fill(selected)} />
@@ -220,17 +180,17 @@ function MapView({
                   <button
                     type="button"
                     onClick={() => setView('detail')}
-                    className="focus-ring mt-2 w-full rounded-full border-2 border-white bg-white/70 py-2.5 text-sm font-extrabold text-ink dark:border-white/15 dark:bg-white/10"
+                    className="focus-ring mt-2 min-h-11 w-full rounded-full border border-sky-100 bg-sky-50 text-sm font-medium text-ink transition-colors hover:bg-sky-100"
                   >
                     🪑 Lihat kursi CAT {selected}
                   </button>
                 )}
               </>
             ) : (
-              <div className="flex flex-col items-center gap-3 py-10 text-center">
-                <SmileLoader className="h-14 w-14" spin={false} />
-                <p className="font-display text-xl text-ink">Pilih zona di denah</p>
-                <p className="text-sm text-ink-soft">Arahkan kursor ke zona untuk lihat harga & jumlah pengisi.</p>
+              <div className="flex flex-col items-center py-8 text-center">
+                <SmileLoader className="mb-3 h-12 w-12" spin={false} />
+                <p className="font-display text-xl font-semibold text-ink">Pilih zona di denah</p>
+                <p className="mt-1 text-sm text-ink-soft">Arahkan kursor ke zona untuk lihat harga dan jumlah pengisi.</p>
               </div>
             )}
           </GlassCard>
@@ -247,7 +207,7 @@ function MapView({
               setSheetOpen(false);
               setView('detail');
             }}
-            className="focus-ring mt-2 w-full rounded-full border-2 border-slate-200 bg-white py-3 font-extrabold text-ink dark:border-white/15 dark:bg-white/10"
+            className="focus-ring mt-2 min-h-12 w-full rounded-full border border-sky-100 bg-sky-50 text-sm font-medium text-ink"
           >
             🪑 Lihat kursi CAT {selected}
           </button>
@@ -260,9 +220,9 @@ function MapView({
           <button
             type="button"
             onClick={() => (view === 'detail' ? fill(selected) : setSheetOpen(true))}
-            className="focus-ring inline-flex min-h-14 items-center gap-2 rounded-full bg-gold-400 px-6 font-display text-lg text-gold-ink shadow-3d active:translate-y-[4px] active:shadow-3d-pressed"
+            className="focus-ring inline-flex min-h-13 items-center gap-2 rounded-full bg-gold-400 py-3 pl-3 pr-6 font-display text-base font-semibold text-gold-ink shadow-[0_10px_24px_-8px_rgb(232_168_0_/_0.8)]"
           >
-            <SmileLoader className="h-6 w-6" spin={false} />
+            <SmileLoader className="h-7 w-7" spin={false} />
             {view === 'detail' ? `Isi seat di CAT ${selected}` : `Lihat ${getCatInfo(selected)!.name}`}
           </button>
         </div>
@@ -290,10 +250,8 @@ function Toggle({
       title={label}
       onClick={onClick}
       className={
-        'focus-ring inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border-2 px-2.5 text-sm font-extrabold transition sm:px-3 ' +
-        (on
-          ? 'border-gold-ink bg-gold-400 text-gold-ink'
-          : 'border-white bg-white/80 text-ink dark:border-white/15 dark:bg-white/10')
+        'focus-ring inline-flex min-h-10 min-w-10 shrink-0 items-center justify-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-colors ' +
+        (on ? 'border-gold-400 bg-gold-400 text-gold-ink' : 'border-white/90 bg-white/75 text-ink hover:bg-white')
       }
     >
       {children}
@@ -320,8 +278,8 @@ function ViewTab({
       onClick={onClick}
       disabled={disabled}
       className={
-        'focus-ring min-h-9 rounded-full px-2.5 text-[13px] font-extrabold transition disabled:opacity-40 sm:px-3 sm:text-sm ' +
-        (active ? 'bg-gold-400 text-gold-ink' : 'text-ink')
+        'focus-ring min-h-9 whitespace-nowrap rounded-full px-3.5 text-sm font-medium transition-colors disabled:opacity-40 ' +
+        (active ? 'bg-gold-400 text-gold-ink' : 'text-ink-soft hover:text-ink')
       }
     >
       {children}

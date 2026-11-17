@@ -11,9 +11,5 @@ export function Countdown({ className }: { className?: string }) {
     return () => clearInterval(t);
   }, []);
 
-  return (
-    <span className={className}>
-      <span className="text-pixel">{countdownLabel(days, EVENT.title)}</span>
-    </span>
-  );
+  return <span className={className}>{days > 0 ? `H-${days}` : countdownLabel(days, EVENT.title)}</span>;
 }

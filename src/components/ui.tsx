@@ -11,18 +11,18 @@ import { cx } from '../lib/cx';
 export { cx };
 
 const fieldBase =
-  'block w-full rounded-2xl border-2 bg-white/90 px-3 py-3 text-base font-semibold text-slate-900 shadow-sm transition ' +
-  'placeholder:font-normal placeholder:text-slate-500 focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-400/40 ' +
-  'dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-400 disabled:opacity-60';
+  'block w-full rounded-xl border bg-white px-3 py-2.5 text-base text-ink transition-colors ' +
+  'placeholder:text-ink-soft/70 focus:border-gold-400 focus:outline-none focus:ring-2 focus:ring-gold-400/25 ' +
+  'disabled:opacity-60';
 
 export const fieldClass = (error?: string, warning?: string) =>
   cx(
     fieldBase,
     error
-      ? 'border-red-500 dark:border-red-500'
+      ? 'border-red-500'
       : warning
-        ? 'border-amber-500 dark:border-amber-500'
-        : 'border-white dark:border-white/15',
+        ? 'border-amber-500'
+        : 'border-[var(--line-strong)]',
   );
 
 interface FieldProps {
@@ -40,22 +40,22 @@ interface FieldProps {
 export function Field({ id, label, required, error, warning, hint, children, className }: FieldProps) {
   return (
     <div className={cx('min-w-0', className)}>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-extrabold text-ink">
+      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-ink">
         {label}
         {required && (
-          <span className="text-red-600 dark:text-red-400" aria-hidden>
+          <span className="text-red-500" aria-hidden>
             {' '}*
           </span>
         )}
       </label>
       {children}
       {error ? (
-        <p id={`${id}-msg`} role="alert" className="mt-1.5 text-sm font-bold text-red-700 dark:text-red-300">
+        <p id={`${id}-msg`} role="alert" className="mt-1.5 text-sm text-red-700">
           {error}
         </p>
       ) : warning ? (
-        <p id={`${id}-msg`} className="mt-1.5 text-sm font-bold text-amber-800 dark:text-amber-300">
-          ⚠️ {warning}
+        <p id={`${id}-msg`} className="mt-1.5 text-sm text-amber-800">
+          {warning}
         </p>
       ) : hint ? (
         <p id={`${id}-msg`} className="mt-1.5 text-sm text-ink-soft">
@@ -103,15 +103,12 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
 );
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
-// primary = tombol emas 3D (sama dengan GoldButton)
 const variants: Record<Variant, string> = {
   primary:
-    'font-display tracking-wide bg-gold-400 text-gold-ink shadow-3d hover:bg-gold-300 ' +
-    'active:translate-y-[4px] active:shadow-3d-pressed disabled:opacity-60 disabled:active:translate-y-0',
-  secondary:
-    'bg-white/85 text-ink border-2 border-white shadow-sm hover:bg-white dark:bg-white/10 dark:border-white/15 dark:hover:bg-white/15',
-  ghost: 'text-ink hover:bg-white/50 dark:hover:bg-white/10',
-  danger: 'bg-red-600 text-white shadow-[0_5px_0_0_#7f1d1d] active:translate-y-[3px] active:shadow-[0_2px_0_0_#7f1d1d] hover:bg-red-700 disabled:opacity-60',
+    'font-display font-semibold tracking-wide bg-gold-400 text-gold-ink shadow-[0_6px_16px_-6px_rgb(232_168_0_/_0.7)] hover:bg-gold-300 active:scale-[0.98] disabled:opacity-60',
+  secondary: 'border border-white bg-white/80 text-ink hover:bg-white',
+  ghost: 'text-ink-soft hover:bg-white/60 hover:text-ink',
+  danger: 'bg-red-500 text-white hover:bg-red-600 disabled:opacity-60',
 };
 
 export function Button({
@@ -127,7 +124,7 @@ export function Button({
       {...p}
       disabled={p.disabled || loading}
       className={cx(
-        'focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 py-3 text-base font-extrabold transition-[transform,box-shadow,background-color] duration-150 disabled:cursor-not-allowed',
+        'focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-[background-color,transform] duration-150 disabled:cursor-not-allowed',
         variants[variant],
         className,
       )}
@@ -149,7 +146,7 @@ export function Spinner({ className }: { className?: string }) {
 
 export function Card({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cx('glass rounded-4xl p-4 sm:p-5', className)}>
+    <div className={cx('glass rounded-2xl p-4 sm:p-5', className)}>
       {children}
     </div>
   );
@@ -157,12 +154,12 @@ export function Card({ children, className }: { children: ReactNode; className?:
 
 export function Notice({ tone = 'info', children }: { tone?: 'info' | 'warn' | 'error'; children: ReactNode }) {
   const t = {
-    info: 'bg-white/80 text-brand-700 border-white dark:bg-sky-400/10 dark:text-sky-100 dark:border-sky-300/25',
-    warn: 'bg-amber-50/95 text-amber-900 border-amber-200 dark:bg-amber-400/10 dark:text-amber-100 dark:border-amber-300/30',
-    error: 'bg-red-50/95 text-red-800 border-red-200 dark:bg-red-500/15 dark:text-red-100 dark:border-red-400/30',
+    info: 'border-white bg-white/80 text-ink',
+    warn: 'border-amber-200 bg-amber-50/95 text-amber-900',
+    error: 'border-red-200 bg-red-50/95 text-red-800',
   }[tone];
   return (
-    <div role={tone === 'error' ? 'alert' : undefined} className={cx('rounded-2xl border-2 px-3.5 py-2.5 text-sm font-semibold', t)}>
+    <div role={tone === 'error' ? 'alert' : undefined} className={cx('rounded-xl border px-3.5 py-2.5 text-sm', t)}>
       {children}
     </div>
   );
@@ -170,12 +167,12 @@ export function Notice({ tone = 'info', children }: { tone?: 'info' | 'warn' | '
 
 export function Badge({ tone, children }: { tone: 'swap' | 'dup' | 'muted'; children: ReactNode }) {
   const t = {
-    swap: 'bg-orange-100 text-orange-800 dark:bg-orange-500/20 dark:text-orange-200',
-    dup: 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-200',
-    muted: 'bg-white/80 text-slate-700 dark:bg-white/10 dark:text-slate-200',
+    swap: 'bg-orange-100 text-orange-800',
+    dup: 'bg-red-100 text-red-800',
+    muted: 'bg-white/80 text-ink-soft',
   }[tone];
   return (
-    <span className={cx('inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold', t)}>{children}</span>
+    <span className={cx('inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium', t)}>{children}</span>
   );
 }
 
@@ -190,21 +187,13 @@ export function PageState({
 }) {
   return (
     <div
-      className="glass mx-auto my-6 flex max-w-md flex-col items-center justify-center gap-3 rounded-4xl px-6 py-12 text-center"
+      className="glass mx-auto my-10 flex max-w-md flex-col items-center justify-center gap-2 rounded-3xl px-6 py-10 text-center"
       role={kind === 'error' ? 'alert' : 'status'}
       aria-live="polite"
     >
-      {kind === 'loading' ? (
-        <SmileLoader className="h-12 w-12" />
-      ) : kind === 'empty' ? (
-        <SmileLoader className="h-14 w-14" spin={false} />
-      ) : (
-        <div className="text-4xl" aria-hidden>
-          😵
-        </div>
-      )}
-      {title && <p className="font-display text-xl text-ink">{title}</p>}
-      {children && <div className="max-w-sm text-ink-soft">{children}</div>}
+      <SmileLoader className="mb-2 h-10 w-10" spin={kind === 'loading'} />
+      {title && <p className="font-display text-xl font-semibold text-ink">{title}</p>}
+      {children && <div className="max-w-sm text-sm text-ink-soft">{children}</div>}
     </div>
   );
 }

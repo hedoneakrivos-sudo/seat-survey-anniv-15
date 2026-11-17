@@ -130,7 +130,7 @@ export function CategorySeatMap({
 
   return (
     <div className={cx('relative', className)}>
-      <div className="relative overflow-hidden rounded-3xl bg-[#101a4d] ring-1 ring-white/10">
+      <div className="relative overflow-hidden rounded-2xl border border-white bg-gradient-to-b from-[#eaf5fe] to-white">
         <svg
           ref={pz.ref}
           viewBox={pz.viewBoxAttr}
@@ -158,15 +158,15 @@ export function CategorySeatMap({
                 width={grid.stage.width}
                 height={grid.stage.height}
                 rx={grid.stage.height / 2}
-                fill="#e7ebf3"
+                fill="#3d8ef0"
               />
               <text
                 x={grid.stage.x + grid.stage.width / 2}
                 y={grid.stage.y + grid.stage.height * 0.7}
                 textAnchor="middle"
                 fontSize={grid.stage.height * 0.55}
-                fontWeight={900}
-                fill="#1a2350"
+                fontWeight={600}
+                fill="#ffffff"
                 letterSpacing={2}
               >
                 PANGGUNG
@@ -174,14 +174,14 @@ export function CategorySeatMap({
             </g>
           ) : (
             <g pointerEvents="none">
-              <path d={grid.stage.d} fill="#e7ebf3" />
+              <path d={grid.stage.d} fill="#3d8ef0" />
               <text
                 x={grid.stage.label[0]}
                 y={grid.stage.label[1] + ROW_GAP * 0.35}
                 textAnchor="middle"
                 fontSize={ROW_GAP * 0.95}
-                fontWeight={900}
-                fill="#1a2350"
+                fontWeight={600}
+                fill="#ffffff"
                 letterSpacing={2}
               >
                 PANGGUNG
@@ -195,7 +195,7 @@ export function CategorySeatMap({
               key={i}
               points={line.map((p) => p.join(',')).join(' ')}
               fill="none"
-              stroke="#ffc928"
+              stroke="#f5c443"
               strokeOpacity={0.5}
               strokeWidth={SEAT * 1.6}
               strokeLinecap="round"
@@ -221,27 +221,18 @@ export function CategorySeatMap({
                     height={SEAT}
                     rx={SEAT * 0.25}
                     fill={empty ? info.color : SEAT_STATE_FILL[st]}
-                    fillOpacity={empty ? 0.35 : 1}
-                    stroke={isPicked ? '#ffc928' : isMine ? '#ffffff' : 'rgb(255 255 255 / .4)'}
+                    fillOpacity={empty ? 0.32 : 1}
+                    stroke={isPicked ? '#e8a800' : isMine ? '#1e3a8a' : 'transparent'}
                     strokeWidth={isPicked || isMine ? 1.6 : 0.6}
-                  />
-                  {/* sandaran: sisi yang menjauhi panggung */}
-                  <rect
-                    x={-SEAT / 2 + 0.6}
-                    y={SEAT / 2 - SEAT * 0.24}
-                    width={SEAT - 1.2}
-                    height={SEAT * 0.18}
-                    rx={SEAT * 0.08}
-                    fill="rgb(0 0 0 / .28)"
-                    pointerEvents="none"
                   />
                   {showNumbers && (
                     <text
                       y={SEAT * 0.1}
                       textAnchor="middle"
                       fontSize={s.n >= 100 ? SEAT * 0.4 : SEAT * 0.48}
-                      fontWeight={800}
-                      fill="#fff"
+                      fontWeight={500}
+                      fill={empty ? '#0f2747' : '#fff'}
+                      fillOpacity={empty ? 0.75 : 1}
                       pointerEvents="none"
                     >
                       {s.n}
@@ -253,7 +244,7 @@ export function CategorySeatMap({
           </g>
 
           {/* label baris di kiri & kanan */}
-          <g pointerEvents="none" fontWeight={900} fontSize={labelSize}>
+          <g pointerEvents="none" fontWeight={600} fontSize={labelSize}>
             {grid.rows.map((r) =>
               [r.left, r.right].map(([x, y], i) => (
                 <text
@@ -261,7 +252,7 @@ export function CategorySeatMap({
                   x={x}
                   y={y + labelSize * 0.35}
                   textAnchor="middle"
-                  fill={r.row === highlightRow ? '#ffc928' : '#cdd6f6'}
+                  fill={r.row === highlightRow ? '#d99a00' : '#7088a8'}
                 >
                   {r.row}
                 </text>
@@ -280,8 +271,8 @@ export function CategorySeatMap({
                   transform={`rotate(${b.angle} ${b.x} ${b.y})`}
                   textAnchor="middle"
                   fontSize={ROW_GAP * 0.8}
-                  fontWeight={800}
-                  fill="#8f9bd0"
+                  fontWeight={500}
+                  fill="#8aa0bd"
                 >
                   {b.name}
                 </text>
@@ -309,9 +300,9 @@ export function CategorySeatMap({
       {/* info kursi yang di-tap */}
       <div aria-live="polite" className="mt-2 min-h-11">
         {picked ? (
-          <div className="rounded-2xl border-2 border-white bg-white/85 px-3 py-2 text-sm dark:border-white/15 dark:bg-white/10">
+          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] px-3 py-2 text-sm">
             <div className="flex items-center justify-between gap-2">
-              <span className="font-extrabold text-ink">
+              <span className="font-semibold text-ink">
                 {layout.name} · Row {picked.row} · No. {picked.n}
               </span>
               <button
@@ -355,7 +346,7 @@ export function CategorySeatMap({
       </div>
 
       <Legend />
-      <p className="mt-1 text-[11px] text-ink-soft">
+      <p className="mt-1 text-xs text-ink-soft">
         Denah tampak atas (perkiraan) · panggung di atas · {layout.rows.length} baris · {layout.capacity} kursi
         {picked ? ` · ${SEAT_STATE_LABEL[seatState(pickedList, false)]}` : ''}
       </p>
@@ -367,10 +358,8 @@ function Pin({ x, y, size }: { x: number; y: number; size: number }) {
   const s = size / 40;
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`} pointerEvents="none" role="img" aria-label="Kursi kamu">
-      <path d="M0 0 C-14 -22 -18 -30 -18 -40 A18 18 0 1 1 18 -40 C18 -30 14 -22 0 0Z" fill="#ffc928" stroke="#5a3a00" strokeWidth={3} />
-      <circle cx={-6} cy={-44} r={2.6} fill="#5a3a00" />
-      <circle cx={6} cy={-44} r={2.6} fill="#5a3a00" />
-      <path d="M-8 -37 Q0 -29 8 -37" fill="none" stroke="#5a3a00" strokeWidth={3} strokeLinecap="round" />
+      <path d="M0 0 C-14 -22 -18 -30 -18 -40 A18 18 0 1 1 18 -40 C18 -30 14 -22 0 0Z" fill="#f5c443" />
+      <circle cx={0} cy={-40} r={6.5} fill="#1a1405" />
     </g>
   );
 }
@@ -393,7 +382,7 @@ function MiniBtn({
       title={label}
       onClick={onClick}
       disabled={disabled}
-      className="focus-ring grid h-10 w-10 place-items-center rounded-full border-2 border-white bg-white/90 font-black text-[#0f2747] shadow-sm disabled:opacity-40 dark:border-white/15 dark:bg-[#141b4a]/90 dark:text-white"
+      className="focus-ring grid h-9 w-9 place-items-center rounded-full border border-sky-100 bg-white text-base text-ink shadow-lift transition-colors hover:bg-sky-50 disabled:text-ink-soft/50"
     >
       {children}
     </button>

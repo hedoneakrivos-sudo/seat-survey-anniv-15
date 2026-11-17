@@ -84,7 +84,7 @@ export function ShareCardButton({ seat }: { seat: PublicSeat }) {
             <img
               src={preview.url}
               alt={`Pratinjau share card ${preview.size === 'story' ? '1080x1920' : '1080x1080'}`}
-              className="mx-auto max-h-72 w-auto rounded-2xl border-2 border-white shadow-lift"
+              className="mx-auto max-h-72 w-auto rounded-2xl border border-[var(--line)]"
             />
             <figcaption className="mt-2 text-center text-xs text-ink-soft">
               Kalau belum tersimpan, tekan lama gambar ini untuk menyimpannya.

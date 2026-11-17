@@ -50,7 +50,7 @@ export function NeighborCard({ side, slot, occupants, rowLabel, shareUrl }: Prop
           <p className="py-4 text-center text-ink-soft">Tidak ada seat di sisi ini.</p>
         ) : occupants.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 py-2 text-center">
-            <p className="font-display text-lg text-ink">Belum ada yang isi, ajak temanmu!</p>
+            <p className="font-display font-semibold text-lg text-ink">Belum ada yang isi, ajak temanmu!</p>
             <ShareButton
               title="Seat Survey Anniv 15"
               text="Isi seat konser Anniv 15 kamu, yuk cek siapa di sebelahmu!"
@@ -78,7 +78,7 @@ function Occupant({ seat }: { seat: PublicSeat }) {
   return (
     <li>
       <div className="flex flex-wrap items-center gap-1.5">
-        <span className="font-display text-xl break-all text-ink">{seat.nickname}</span>
+        <span className="font-display font-semibold text-xl break-all text-ink">{seat.nickname}</span>
         <Badge tone="muted">{seat.sex === 'M' ? 'Laki-laki' : 'Perempuan'}</Badge>
         {seat.want_swap && <Badge tone="swap">MAU TUKAR</Badge>}
         {seat.is_duplicate && <Badge tone="dup">⚠ Duplikat</Badge>}
@@ -100,7 +100,7 @@ export function SocialLink({ href, label }: { href: string; label: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer nofollow"
-      className="focus-ring inline-flex min-h-11 items-center rounded-full border-2 border-white bg-white/85 px-3.5 text-sm font-extrabold text-ink hover:bg-white dark:border-white/15 dark:bg-white/10 dark:hover:bg-white/15"
+      className="focus-ring inline-flex min-h-11 items-center rounded-full border border-[var(--line)] bg-[var(--surface-2)] px-3.5 text-sm font-semibold text-ink hover:bg-[var(--surface-2)]"
     >
       {label}
       <span className="sr-only"> (buka di tab baru)</span>

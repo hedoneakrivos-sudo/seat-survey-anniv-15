@@ -2,7 +2,7 @@ import type { ReactNode, ButtonHTMLAttributes } from 'react';
 import { getCatInfo } from '../config/catConfig';
 import { cx } from '../lib/cx';
 
-/* ---------------- GlassCard ---------------- */
+/* ---------------- GlassCard (surface L1) ---------------- */
 
 export function GlassCard({
   children,
@@ -13,15 +13,12 @@ export function GlassCard({
   className?: string;
   as?: 'div' | 'section' | 'aside' | 'li';
 }) {
-  return <Tag className={cx('glass rounded-4xl p-4 sm:p-5', className)}>{children}</Tag>;
+  return <Tag className={cx('glass rounded-2xl p-4 sm:p-5', className)}>{children}</Tag>;
 }
 
-/* ---------------- GoldButton ---------------- */
+/* ---------------- GoldButton (CTA utama) ---------------- */
 
-/**
- * Tombol emas 3D: bayangan bawah tebal yang "tertekan" saat diklik.
- * Translate + shadow ditukar bersamaan supaya tombol tidak bergeser.
- */
+/** Tombol utama: isi solid satu warna aksen, tanpa bayangan 3D. */
 export function GoldButton({
   children,
   className,
@@ -35,15 +32,14 @@ export function GoldButton({
       {...p}
       disabled={p.disabled || loading}
       className={cx(
-        'focus-ring relative inline-flex items-center justify-center gap-2 rounded-full font-display tracking-wide',
-        'bg-gold-400 text-gold-ink shadow-3d transition-[transform,box-shadow] duration-150',
-        'hover:bg-gold-300 active:translate-y-[4px] active:shadow-3d-pressed',
-        'disabled:cursor-not-allowed disabled:opacity-60 disabled:active:translate-y-0 disabled:active:shadow-3d',
-        size === 'lg' ? 'min-h-14 px-7 text-lg' : 'min-h-12 px-5 text-base',
+        'focus-ring relative inline-flex items-center justify-center gap-2 rounded-full font-display font-semibold tracking-wide',
+        'bg-gold-400 text-gold-ink shadow-[0_6px_16px_-6px_rgb(232_168_0_/_0.7)] transition-[background-color,transform] duration-150 hover:bg-gold-300 active:scale-[0.98]',
+        'disabled:cursor-not-allowed disabled:opacity-60',
+        size === 'lg' ? 'min-h-12 px-6 text-base' : 'min-h-11 px-5 text-sm',
         className,
       )}
     >
-      {loading ? <SmileLoader className="h-5 w-5" /> : null}
+      {loading ? <SmileLoader className="h-4 w-4" /> : null}
       {children}
     </button>
   );
@@ -61,67 +57,50 @@ interface CatChipProps {
   as?: 'button' | 'span';
 }
 
+/** Chip netral dengan titik warna CAT. Warna penuh hanya di titiknya. */
 export function CatChip({ category, selected, count, onClick, className, as = 'button' }: CatChipProps) {
   const info = getCatInfo(category);
   if (!info) return null;
-  const style = { background: info.color, color: info.textColor };
   const inner = (
     <>
-      <span className="font-display text-sm leading-none">CAT {category}</span>
-      {typeof count === 'number' && (
-        <span
-          className="rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none"
-          style={{ background: 'rgb(255 255 255 / .55)', color: info.textColor }}
-        >
-          {count}
-        </span>
-      )}
+      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: info.color }} aria-hidden />
+      <span className="text-sm font-medium leading-none">CAT {category}</span>
+      {typeof count === 'number' && <span className="text-xs tabular-nums text-ink-soft">{count}</span>}
     </>
   );
   const base = cx(
-    'inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 shadow-sm transition',
-    'ring-2 ring-white/70',
-    selected ? 'outline-3 outline-offset-2 outline-gold-ink dark:outline-gold-400' : 'hover:brightness-105',
+    'inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border px-3.5 text-ink transition-colors',
+    selected ? 'border-gold-400 bg-gold-400/20' : 'border-white bg-white/80 hover:bg-white',
     className,
   );
-  if (as === 'span')
-    return (
-      <span className={base} style={style}>
-        {inner}
-      </span>
-    );
+  if (as === 'span') return <span className={base}>{inner}</span>;
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={selected}
-      className={cx(base, 'focus-ring')}
-      style={style}
-    >
+    <button type="button" onClick={onClick} aria-pressed={selected} className={cx(base, 'focus-ring')}>
       {inner}
     </button>
   );
 }
 
-/* ---------------- SmileLoader ---------------- */
+/* ---------------- loader & state ---------------- */
 
-/** Maskot smiley: loader (berputar) atau ikon statis */
+/** Maskot smiley: spin = loader berputar, spin={false} = ikon statis */
 export function SmileLoader({ className, spin = true }: { className?: string; spin?: boolean }) {
   return (
     <svg viewBox="0 0 32 32" className={cx(spin && 'animate-spin', className)} aria-hidden>
-      <circle cx="16" cy="16" r="14" fill="#ffc928" stroke="#5a3a00" strokeWidth="2.5" />
-      <circle cx="11.5" cy="13" r="1.9" fill="#5a3a00" />
-      <circle cx="20.5" cy="13" r="1.9" fill="#5a3a00" />
-      <path d="M9.5 19q6.5 6.5 13 0" fill="none" stroke="#5a3a00" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="16" cy="16" r="15" fill="#ffc933" />
+      <circle cx="16" cy="16" r="15" fill="none" stroke="#e8a800" strokeWidth="1.5" />
+      <circle cx="11.5" cy="13.5" r="1.8" fill="#3d2a00" />
+      <circle cx="20.5" cy="13.5" r="1.8" fill="#3d2a00" />
+      <path d="M10 19.5q6 5.5 12 0" fill="none" stroke="#3d2a00" strokeWidth="2.2" strokeLinecap="round" />
     </svg>
   );
 }
 
 export function SmileState({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-10 text-center" role="status" aria-live="polite">
-      <SmileLoader className="h-14 w-14" spin={false} />
-      <p className="font-display text-lg text-ink">{title}</p>
+    <div className="flex flex-col items-center justify-center gap-2 py-10 text-center" role="status" aria-live="polite">
+      <SmileLoader className="mb-1 h-10 w-10" spin={false} />
+      <p className="font-display text-lg font-semibold text-ink">{title}</p>
       {children && <div className="max-w-sm text-sm text-ink-soft">{children}</div>}
     </div>
   );
@@ -129,9 +108,9 @@ export function SmileState({ title, children }: { title: string; children?: Reac
 
 export function SmileSpinner({ title = 'Sabar ya, lagi senyum…' }: { title?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-16" role="status" aria-live="polite">
-      <SmileLoader className="h-12 w-12" />
-      <p className="font-display text-ink">{title}</p>
+    <div className="flex flex-col items-center justify-center gap-3 py-16 text-ink-soft" role="status" aria-live="polite">
+      <SmileLoader className="h-9 w-9" />
+      <p className="text-sm">{title}</p>
     </div>
   );
 }

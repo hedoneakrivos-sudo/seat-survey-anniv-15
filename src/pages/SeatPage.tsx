@@ -123,13 +123,13 @@ export default function SeatPage() {
       {flash && <Notice tone="info">{flash}</Notice>}
 
       {/* Kartu konfirmasi */}
-      <Card className="relative overflow-hidden !border-4 !border-gold-400 shadow-lift">
+      <Card className="relative overflow-hidden !border-4 !border-gold-400">
         <span
           className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-gold-400/35"
           aria-hidden
         />
-        <p className="text-pixel text-[11px] font-bold text-ink-soft">{isMine ? 'SEAT KAMU' : 'SEAT'}</p>
-        <h1 className="mt-1 font-display text-2xl text-ink sm:text-3xl">{formatSeat(live)}</h1>
+        <p className="text-pixel text-xs font-bold text-ink-soft">{isMine ? 'SEAT KAMU' : 'SEAT'}</p>
+        <h1 className="mt-1 font-display font-semibold text-2xl text-ink sm:text-3xl">{formatSeat(live)}</h1>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="font-semibold break-all">{live.nickname}</span>
           <Badge tone="muted">{live.sex === 'M' ? 'Laki-laki' : 'Perempuan'}</Badge>
@@ -162,7 +162,7 @@ export default function SeatPage() {
         {row.status === 'loading' || row.status === 'idle' ? (
           <div className="grid gap-3 sm:grid-cols-2" aria-busy="true">
             {[0, 1].map((i) => (
-              <div key={i} className="h-36 animate-pulse rounded-2xl bg-white/50 dark:bg-white/10" />
+              <div key={i} className="h-36 animate-pulse rounded-2xl bg-white/50" />
             ))}
           </div>
         ) : row.status === 'error' ? (
@@ -201,23 +201,23 @@ export default function SeatPage() {
       {layout && (
         <section aria-labelledby="minimap-title" className="space-y-3">
           <Card>
-            <h2 id="minimap-title" className="mb-3 font-display text-lg text-ink">
+            <h2 id="minimap-title" className="mb-3 font-display font-semibold text-lg text-ink">
               Posisi kamu di Row {live.row_label}
             </h2>
             {row.status === 'ok' ? (
               <RowMiniMap layout={layout} rowLabel={live.row_label} mySeat={live.seat_number} seats={row.seats} />
             ) : (
-              <div className="h-16 animate-pulse rounded-xl bg-white/50 dark:bg-white/10" />
+              <div className="h-16 animate-pulse rounded-xl bg-white/50" />
             )}
           </Card>
 
           {/* peta seluruh CAT, otomatis zoom ke baris kamu */}
           <Card>
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-              <h2 className="font-display text-lg text-ink">Seluruh {layout.name}</h2>
+              <h2 className="font-display font-semibold text-lg text-ink">Seluruh {layout.name}</h2>
               <RouterLink
                 to={`/?cat=${live.category}&view=detail`}
-                className="text-sm font-bold text-ink underline decoration-gold-500 decoration-2 underline-offset-2"
+                className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-sm font-medium text-ink hover:bg-white"
               >
                 Buka di peta besar
               </RouterLink>
@@ -242,7 +242,7 @@ export default function SeatPage() {
         />
         <RouterLink
           to={`/?cat=${live.category}&view=detail`}
-          className="focus-ring inline-flex min-h-12 items-center rounded-full border-2 border-white bg-white/85 px-5 font-extrabold text-ink dark:border-white/15 dark:bg-white/10"
+          className="focus-ring inline-flex min-h-12 items-center rounded-full border border-[var(--line)] bg-[var(--surface-2)] px-5 font-semibold text-ink"
         >
           👯 Cari teman satu CAT
         </RouterLink>

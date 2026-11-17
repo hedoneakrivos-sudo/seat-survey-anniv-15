@@ -9,16 +9,22 @@
  * mis. --color-gold-400 → bg-gold-400, --font-display → font-display.
  */
 @theme {
-  /* Tipografi */
-  --font-sans: "Nunito", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Lilita One", "Nunito", ui-sans-serif, system-ui, sans-serif;
-  --font-pixel: "Silkscreen", ui-monospace, monospace;
+  /* Tipografi: satu keluarga (Inter). font-display dipetakan ke sans
+     supaya semua judul/angka lama ikut bersih tanpa ganti tiap file. */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Fredoka", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-pixel: "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  /* Emas poster */
-  --color-gold-300: #ffdb5c;
-  --color-gold-400: #ffc928;
-  --color-gold-500: #f5a800;
-  --color-gold-ink: #5a3a00; /* outline judul & tombol */
+  /* batasi ketebalan: 400 / 500 / 600 (bold & extrabold dipetakan ke 600) */
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 600;
+  --font-weight-black: 600;
+
+  /* Aksen emas (satu-satunya warna interaktif) */
+  --color-gold-300: #ffd866;
+  --color-gold-400: #ffc933;
+  --color-gold-500: #f0b000;
+  --color-gold-ink: #3d2a00;
 
   /* Langit */
   --color-sky-top: #1e7ff0;
@@ -49,20 +55,21 @@
   --color-brand-600: #1668cc;
   --color-brand-700: #0f4f9e;
 
-  /* Radius & bayangan 3D */
-  --radius-4xl: 2rem;
-  --shadow-3d: 0 6px 0 0 var(--color-gold-ink);
-  --shadow-3d-pressed: 0 2px 0 0 var(--color-gold-ink);
-  --shadow-glass: 0 10px 30px -10px rgb(15 50 110 / 0.35);
-  --shadow-lift: 0 14px 24px -8px rgb(15 50 110 / 0.45);
+  /* Radius & bayangan: datar dan lembut (tanpa efek 3D) */
+  --radius-4xl: 1.25rem;
+  --radius-3xl: 1rem;
+  --shadow-3d: 0 0 0 0 transparent;
+  --shadow-3d-pressed: 0 0 0 0 transparent;
+  --shadow-glass: 0 1px 2px rgb(15 60 130 / 0.08);
+  --shadow-lift: 0 10px 28px -10px rgb(15 60 130 / 0.35);
 
-  --animate-drift: drift 80s linear infinite;
-  --animate-drift-slow: drift 140s linear infinite;
+  --animate-drift: drift 90s linear infinite;
+  --animate-drift-slow: drift 150s linear infinite;
   --animate-pulse-ring: pulse-ring 1.6s ease-out infinite;
-  --animate-pop-in: pop-in 220ms cubic-bezier(.2, .9, .3, 1.3) both;
+  --animate-pop-in: pop-in 180ms cubic-bezier(.2, .8, .2, 1) both;
 
   @keyframes drift {
-    from { transform: translateX(-10%); }
+    from { transform: translateX(-20vw); }
     to { transform: translateX(110vw); }
   }
   @keyframes pulse-ring {
@@ -70,34 +77,35 @@
     100% { transform: scale(2.2); opacity: 0; }
   }
   @keyframes pop-in {
-    from { transform: scale(0.85); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+    from { transform: translateY(8px); opacity: 0; }
+    to { transform: none; opacity: 1; }
   }
 }
 
-/* ---------- warna semantik yang berubah di dark mode ---------- */
+/* ---------- warna semantik: langit siang ----------
+ * L0 langit (gradien) → L1 kartu putih (border tipis) → L2 sheet/tooltip.
+ * Satu aksen interaktif: emas. Teks navy supaya kontras di atas putih.
+ */
 :root {
-  --sky-a: var(--color-sky-top);
-  --sky-b: var(--color-sky-mid);
-  --sky-c: var(--color-sky-low);
-  --glass-bg: rgb(255 255 255 / 0.62);
-  --glass-border: rgb(255 255 255 / 0.75);
-  --ink: #0f2747; /* teks utama di atas kaca terang */
-  --ink-soft: #35506f;
+  --sky-top: #3d8ef0;
+  --sky-mid: #8cc8f5;
+  --sky-low: #e3f2fc;
+  --canvas: #e9f4fd;
+  --surface: rgb(255 255 255 / 0.93);
+  --surface-2: #ffffff;
+  --line: rgb(15 39 71 / 0.08);
+  --line-strong: rgb(15 39 71 / 0.14);
+  --ink: #0f2747;
+  --ink-soft: #52698a;
+  --accent: #f5c443;
+  --accent-ink: #3d2a00;
+  /* alias lama */
+  --sky-a: var(--sky-top);
+  --sky-b: var(--sky-mid);
+  --sky-c: var(--sky-low);
+  --glass-bg: var(--surface);
+  --glass-border: var(--line);
   color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* langit senja → malam */
-    --sky-a: #0b1440;
-    --sky-b: #2a2a6e;
-    --sky-c: #5b3a78;
-    --glass-bg: rgb(16 22 58 / 0.62);
-    --glass-border: rgb(255 255 255 / 0.14);
-    --ink: #f1f5ff;
-    --ink-soft: #b9c4e6;
-    color-scheme: dark;
-  }
 }
 
 html { -webkit-tap-highlight-color: transparent; }
@@ -106,33 +114,43 @@ body {
   font-family: var(--font-sans);
   color: var(--ink);
   min-height: 100dvh;
-  background-color: var(--sky-a); /* fallback sebelum gradient */
-  background-image: linear-gradient(180deg, var(--sky-a) 0%, var(--sky-b) 55%, var(--sky-c) 100%);
+  line-height: 1.55;
+  background-color: var(--sky-mid);
+  background-image: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 38%, var(--sky-low) 78%, #f6fbff 100%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
 }
 
 /* ---------- komponen ---------- */
 @layer components {
-  /* Judul emas ala logo poster: isi emas, outline cokelat, bayangan bawah tebal */
+  /* judul: font bulat, putih di atas langit, bayangan lembut */
   .title-3d {
     font-family: var(--font-display);
-    color: var(--color-gold-400);
-    -webkit-text-stroke: 2px var(--color-gold-ink);
-    paint-order: stroke fill;
-    text-shadow: 0 4px 0 var(--color-gold-ink), 0 8px 14px rgb(0 0 0 / 0.25);
-    letter-spacing: 0.01em;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    text-shadow: 0 2px 12px rgb(15 60 130 / 0.25);
+  }
+  /* judul di atas kartu putih */
+  .title-ink {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    line-height: 1.15;
   }
   .text-pixel {
-    font-family: var(--font-pixel);
-    letter-spacing: 0.04em;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
+  /* kartu = putih semi-solid, border tipis, bayangan sangat lembut */
   .glass {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-glass);
-    -webkit-backdrop-filter: blur(14px) saturate(1.3);
-    backdrop-filter: blur(14px) saturate(1.3);
+    background: var(--surface);
+    border: 1px solid rgb(255 255 255 / 0.9);
+    box-shadow: 0 1px 2px rgb(15 60 130 / 0.06), 0 8px 24px -12px rgb(15 60 130 / 0.18);
   }
   .text-ink { color: var(--ink); }
   .text-ink-soft { color: var(--ink-soft); }

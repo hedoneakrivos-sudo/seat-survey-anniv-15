@@ -110,7 +110,7 @@ function LoginForm({ onLogin }: { onLogin: (s: string) => void }) {
 
   return (
     <Card className="mx-auto max-w-sm">
-      <h1 className="font-display text-2xl text-ink">Admin</h1>
+      <h1 className="font-display font-semibold text-2xl text-ink">Admin</h1>
       <p className="mt-1 text-sm text-ink-soft">Khusus pengelola survei.</p>
       <form onSubmit={submit} className="mt-4 space-y-3">
         <Field id="admin-pw" label="Password" error={err ?? undefined}>
@@ -217,7 +217,7 @@ function AdminPanel({ session, onLogout, onExpired }: { session: string; onLogou
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="font-display text-2xl text-ink sm:text-3xl">Admin</h1>
+        <h1 className="font-display font-semibold text-2xl text-ink sm:text-3xl">Admin</h1>
         <Button variant="secondary" onClick={onLogout}>
           Keluar
         </Button>
@@ -236,8 +236,8 @@ function AdminPanel({ session, onLogout, onExpired }: { session: string; onLogou
             ] as const
           ).map(([k, v]) => (
             <div key={k} className="glass rounded-2xl px-3 py-2">
-              <dt className="text-[11px] font-bold text-ink-soft">{k}</dt>
-              <dd className="font-display text-xl text-ink">{v}</dd>
+              <dt className="text-xs font-bold text-ink-soft">{k}</dt>
+              <dd className="font-display font-semibold text-xl text-ink">{v}</dd>
             </div>
           ))}
         </dl>
@@ -253,8 +253,8 @@ function AdminPanel({ session, onLogout, onExpired }: { session: string; onLogou
               aria-selected={flag === f.value}
               onClick={() => setFlag(f.value)}
               className={cx(
-                'focus-ring min-h-10 rounded-full px-3.5 text-sm font-extrabold',
-                flag === f.value ? 'bg-gold-400 text-gold-ink' : 'bg-white/70 text-ink dark:bg-white/10',
+                'focus-ring min-h-10 rounded-full px-3.5 text-sm font-semibold',
+                flag === f.value ? 'bg-gold-400 text-gold-ink' : 'bg-[var(--surface-2)] text-ink ',
               )}
             >
               {f.label}
@@ -436,7 +436,7 @@ function AdminRow({
         />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="font-extrabold break-all text-ink">{r.nickname}</span>
+            <span className="font-semibold break-all text-ink">{r.nickname}</span>
             <Badge tone="muted">{r.sex === 'M' ? 'L' : 'P'}</Badge>
             {r.want_swap && <Badge tone="swap">MAU TUKAR</Badge>}
             {r.is_duplicate && <Badge tone="dup">Duplikat</Badge>}
@@ -500,10 +500,10 @@ function SmallBtn({
       type="button"
       {...p}
       className={cx(
-        'focus-ring min-h-10 rounded-full border-2 px-3 text-xs font-extrabold disabled:cursor-not-allowed disabled:opacity-50',
+        'focus-ring min-h-10 rounded-full border px-3 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50',
         danger
           ? 'border-red-600 bg-red-600 text-white hover:bg-red-700'
-          : 'border-white bg-white/85 text-ink hover:bg-white dark:border-white/15 dark:bg-white/10',
+          : 'border-[var(--line)] bg-[var(--surface-2)] text-ink hover:bg-[var(--surface-2)]  ',
       )}
     >
       {children}

@@ -180,7 +180,7 @@ export function SeatmapInteractive({
         </defs>
 
         {/* langit: selalu menutupi seluruh bounds, termasuk saat viewBox meluber */}
-        <rect x={-200} y={-200} width={SEATMAP_SIZE.width + 400} height={SEATMAP_SIZE.height + 400} fill="var(--sky-b)" />
+        <rect x={-200} y={-200} width={SEATMAP_SIZE.width + 400} height={SEATMAP_SIZE.height + 400} fill="var(--sky-mid)" />
 
         {mode === 'image' ? (
           <image
@@ -343,7 +343,7 @@ export function SeatmapInteractive({
       )}
 
       {/* kontrol zoom */}
-      <div className="absolute bottom-3 right-3 flex flex-col gap-1.5">
+      <div className="absolute bottom-2.5 right-2.5 flex gap-1.5">
         <MapButton label="Perbesar" onClick={() => pz.zoomBy(1.6, undefined, true)}>
           +
         </MapButton>
@@ -400,11 +400,11 @@ function Tooltip({ text, swap, left, top }: { text: string; swap: number; left: 
   return (
     <div
       role="tooltip"
-      className="pointer-events-none absolute z-10 hidden -translate-x-1/2 -translate-y-[calc(100%+14px)] animate-pop-in rounded-2xl border-2 border-white bg-white/95 px-3 py-2 text-sm font-bold text-[#0f2747] shadow-lift md:block dark:border-white/15 dark:bg-[#141b4a]/95 dark:text-white"
+      className="pointer-events-none absolute z-10 hidden -translate-x-1/2 -translate-y-[calc(100%+14px)] animate-pop-in rounded-xl border border-white bg-white px-3 py-2 text-sm text-ink shadow-lift md:block"
       style={{ left: `${l}%`, top: `${Math.max(12, top)}%` }}
     >
       {text}
-      {swap > 0 && <span className="ml-1 text-orange-600 dark:text-orange-300">· {swap} MAU TUKAR</span>}
+      {swap > 0 && <span className="ml-1 text-orange-600">· {swap} mau tukar</span>}
     </div>
   );
 }
@@ -427,7 +427,7 @@ function MapButton({
       title={label}
       onClick={onClick}
       disabled={disabled}
-      className="focus-ring grid h-11 w-11 place-items-center rounded-full border-2 border-white bg-white/90 text-xl font-black text-[#0f2747] shadow-glass transition hover:bg-white disabled:opacity-40 dark:border-white/15 dark:bg-[#141b4a]/90 dark:text-white"
+      className="focus-ring grid h-9 w-9 place-items-center rounded-full border border-sky-100 bg-white text-base text-ink shadow-lift transition-colors hover:bg-sky-50 disabled:text-ink-soft/50"
     >
       {children}
     </button>

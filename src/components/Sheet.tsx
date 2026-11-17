@@ -59,16 +59,16 @@ export function Sheet({ open, onClose, title, children, actions }: Props) {
   if (!open) return null;
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-sky-950/50" onClick={onClose} aria-hidden />
+      <div className="absolute inset-0 bg-sky-950/40" onClick={onClose} aria-hidden />
       <div
         ref={panel}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative w-full max-w-md animate-pop-in rounded-t-4xl border-2 border-white bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl sm:rounded-4xl dark:border-white/10 dark:bg-[#141b4a]" style={{ maxHeight: 'min(92dvh, 760px)', overflowY: 'auto' }}
+        className="relative w-full max-w-md animate-pop-in rounded-t-3xl border border-white bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:rounded-3xl" style={{ maxHeight: 'min(92dvh, 760px)', overflowY: 'auto' }}
       >
-        <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-slate-300 sm:hidden dark:bg-white/20" aria-hidden />
-        <h2 id={titleId} className="font-display text-xl text-ink">
+        <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-slate-200 sm:hidden" aria-hidden />
+        <h2 id={titleId} className="font-display text-xl font-semibold text-ink">
           {title}
         </h2>
         <div className="mt-2 text-ink">{children}</div>

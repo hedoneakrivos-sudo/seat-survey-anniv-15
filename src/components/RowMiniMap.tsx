@@ -43,14 +43,14 @@ export function RowMiniMap({ layout, rowLabel, mySeat, seats }: Props) {
 
   return (
     <div>
-      <div className="mb-2 text-center text-[11px] font-bold uppercase tracking-widest text-ink-soft">
+      <div className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-ink-soft">
         ↑ Arah panggung
       </div>
       <div ref={scroller} className="overflow-x-auto pb-2" tabIndex={0} aria-label={`Peta Row ${rowLabel}, bisa digeser`}>
         <div className="flex w-max items-end gap-4 px-1">
           {blocks.map((seatsInBlock, bi) => (
             <div key={bi} className="flex flex-col items-center gap-1">
-              <span className="text-[11px] font-semibold text-ink-soft">
+              <span className="text-xs font-semibold text-ink-soft">
                 {layout.blockNames[bi]}
               </span>
               <ol className="flex gap-1" aria-label={`Blok ${layout.blockNames[bi]}`}>
@@ -63,7 +63,7 @@ export function RowMiniMap({ layout, rowLabel, mySeat, seats }: Props) {
                       ref={n === mySeat ? mine : undefined}
                       title={who ? `No. ${n}: ${who}` : `No. ${n}: kosong`}
                       className={cx(
-                        'grid h-7 w-7 shrink-0 place-items-center rounded-t-lg rounded-b-sm text-[10px] font-bold',
+                        'grid h-7 w-7 shrink-0 place-items-center rounded-t-lg rounded-b-sm text-xs font-bold',
                         styles[st],
                       )}
                     >
@@ -94,11 +94,11 @@ export function Legend() {
     ['empty', 'Kosong'],
   ];
   return (
-    <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-soft" aria-label="Keterangan warna">
+    <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-ink-soft" aria-label="Keterangan warna">
       {items.map(([st, label]) => (
         <li key={st} className="flex items-center gap-1.5">
           <span
-            className={cx('h-3 w-3 rounded-sm', styles[st].split(' ').filter((c) => c.startsWith('bg-') || c.startsWith('dark:bg-')).join(' '))}
+            className={cx('h-2.5 w-2.5 rounded-full', styles[st].split(' ').filter((c) => c.startsWith('bg-')).join(' '))}
             aria-hidden
           />
           {label}

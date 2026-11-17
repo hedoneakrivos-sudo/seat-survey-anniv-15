@@ -35,7 +35,7 @@ export const SEAT_STATE_CLASS: Record<SeatState, string> = {
   dup: 'bg-seat-dup text-white',
   swap: 'bg-seat-swap text-white',
   taken: 'bg-seat-taken text-white',
-  empty: 'bg-seat-empty text-slate-700 dark:bg-slate-600 dark:text-slate-100',
+  empty: 'bg-seat-empty text-slate-700',
 };
 
 /** Warna isi kursi untuk SVG (tanpa Tailwind) */

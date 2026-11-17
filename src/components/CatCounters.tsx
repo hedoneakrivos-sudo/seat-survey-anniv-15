@@ -18,7 +18,7 @@ interface Props {
 export function CatCounters({ stats, selected, onSelect, loading }: Props) {
   return (
     <ul
-      className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]"
+      className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]"
       aria-label="Jumlah pengisi per kategori"
       aria-busy={loading || undefined}
     >
@@ -62,25 +62,27 @@ function CounterChip({
       onClick={onClick}
       aria-pressed={selected}
       className={cx(
-        'focus-ring relative flex min-h-16 w-36 shrink-0 flex-col justify-between rounded-3xl border-2 bg-white/80 px-3 py-2 text-left transition dark:bg-white/10',
-        selected ? 'border-gold-ink dark:border-gold-400' : 'border-white dark:border-white/15',
+        'focus-ring relative flex w-32 shrink-0 flex-col gap-2 rounded-2xl border px-3 py-2.5 text-left transition-[background-color,border-color,transform] duration-150',
+        selected
+          ? 'border-gold-400 bg-white shadow-[0_6px_18px_-8px_rgb(232_168_0_/_0.6)]'
+          : 'border-white/90 bg-white/90 hover:-translate-y-0.5 hover:bg-white',
       )}
     >
-      <span className="flex items-center gap-1.5">
-        <span className="h-3 w-3 shrink-0 rounded-full ring-1 ring-black/15" style={{ background: info.color }} aria-hidden />
-        <span className="font-display text-sm text-ink">CAT {category}</span>
-      </span>
-      <span className="flex items-baseline gap-1">
-        <span className="font-display text-xl tabular-nums text-ink">{shownTotal}</span>
-        <span className="text-[11px] font-bold text-ink-soft">orang</span>
+      <span className="flex items-center gap-2">
+        <span className="h-2.5 w-2.5 shrink-0 rounded-full ring-2 ring-white" style={{ background: info.color }} aria-hidden />
+        <span className="whitespace-nowrap text-xs font-medium text-ink-soft">CAT {category}</span>
         {swap > 0 && (
-          <span className="ml-auto text-[11px] font-extrabold tabular-nums text-orange-600 dark:text-orange-300">
-            {shownSwap} tukar
+          <span className="ml-auto whitespace-nowrap rounded-full bg-orange-100 px-1.5 text-xs tabular-nums text-orange-700" title={`${swap} mau tukar`}>
+            {shownSwap}⇄
           </span>
         )}
       </span>
-      {/* bar kapasitas: estimasi, jadi tanpa angka persen yang menyesatkan */}
-      <span className="mt-1 block h-1.5 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/15" aria-hidden>
+      <span className="font-display text-2xl font-semibold leading-none tabular-nums text-ink">
+        {shownTotal}
+        <span className="ml-1 font-sans text-xs font-normal text-ink-soft">orang</span>
+      </span>
+      {/* bar kapasitas: estimasi, jadi tanpa angka persen */}
+      <span className="block h-1 w-full overflow-hidden rounded-full bg-sky-100" aria-hidden>
         <span className="block h-full rounded-full transition-[width] duration-500" style={{ width: `${pct}%`, background: info.color }} />
       </span>
       <span className="sr-only">

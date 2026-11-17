@@ -88,8 +88,8 @@ export function ReportButton({ seatId, nickname, className }: { seatId: string; 
             <label
               key={r.value}
               className={cx(
-                'flex min-h-11 cursor-pointer items-center gap-3 rounded-2xl border-2 px-3 text-sm font-bold text-ink',
-                reason === r.value ? 'border-gold-500 bg-gold-400/20' : 'border-white bg-white/70 dark:border-white/15 dark:bg-white/5',
+                'flex min-h-11 cursor-pointer items-center gap-3 rounded-2xl border px-3 text-sm font-bold text-ink',
+                reason === r.value ? 'border-gold-500 bg-gold-400/20' : 'border-[var(--line)] bg-[var(--surface-2)]  ',
               )}
             >
               <input
