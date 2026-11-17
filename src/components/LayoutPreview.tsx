@@ -43,8 +43,8 @@ export function LayoutPreview({ values }: { values: SeatFormValues }) {
         </div>
       </dl>
 
-      <div className="mt-5 text-center text-xs font-semibold uppercase tracking-widest text-slate-500">Panggung</div>
-      <div className="mx-auto mt-1 h-2 w-2/3 rounded-full bg-slate-300 dark:bg-slate-700" aria-hidden />
+      <div className="mt-5 text-center text-xs font-semibold uppercase tracking-widest text-ink-soft">Panggung</div>
+      <div className="mx-auto mt-1 h-2 w-2/3 rounded-full bg-[var(--stage)]" aria-hidden />
 
       <ol className="mt-4 max-h-[55vh] space-y-1 overflow-auto pr-1 text-sm" aria-label="Daftar row">
         {layout.rows.map((r) => {
@@ -54,7 +54,7 @@ export function LayoutPreview({ values }: { values: SeatFormValues }) {
               key={r.label}
               className={
                 'flex items-center justify-between rounded-lg px-3 py-1.5 ' +
-                (active ? 'bg-brand-600 text-white' : 'bg-slate-100 dark:bg-slate-800')
+                (active ? 'bg-brand-600 text-white' : 'bg-[var(--soft)]')
               }
             >
               <span className="font-semibold">Row {r.label}</span>

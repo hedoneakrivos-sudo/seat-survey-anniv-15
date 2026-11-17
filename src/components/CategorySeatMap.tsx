@@ -130,7 +130,7 @@ export function CategorySeatMap({
 
   return (
     <div className={cx('relative', className)}>
-      <div className="relative overflow-hidden rounded-2xl border border-white bg-gradient-to-b from-[#eaf5fe] to-white">
+      <div className="relative overflow-hidden rounded-2xl border border-[var(--chip-border)] bg-gradient-to-b from-[var(--map-a)] to-[var(--map-b)]">
         <svg
           ref={pz.ref}
           viewBox={pz.viewBoxAttr}
@@ -158,7 +158,7 @@ export function CategorySeatMap({
                 width={grid.stage.width}
                 height={grid.stage.height}
                 rx={grid.stage.height / 2}
-                fill="#3d8ef0"
+                fill="var(--stage)"
               />
               <text
                 x={grid.stage.x + grid.stage.width / 2}
@@ -166,7 +166,7 @@ export function CategorySeatMap({
                 textAnchor="middle"
                 fontSize={grid.stage.height * 0.55}
                 fontWeight={600}
-                fill="#ffffff"
+                fill="var(--stage-ink)"
                 letterSpacing={2}
               >
                 PANGGUNG
@@ -174,14 +174,14 @@ export function CategorySeatMap({
             </g>
           ) : (
             <g pointerEvents="none">
-              <path d={grid.stage.d} fill="#3d8ef0" />
+              <path d={grid.stage.d} fill="var(--stage)" />
               <text
                 x={grid.stage.label[0]}
                 y={grid.stage.label[1] + ROW_GAP * 0.35}
                 textAnchor="middle"
                 fontSize={ROW_GAP * 0.95}
                 fontWeight={600}
-                fill="#ffffff"
+                fill="var(--stage-ink)"
                 letterSpacing={2}
               >
                 PANGGUNG
@@ -221,8 +221,8 @@ export function CategorySeatMap({
                     height={SEAT}
                     rx={SEAT * 0.25}
                     fill={empty ? info.color : SEAT_STATE_FILL[st]}
-                    fillOpacity={empty ? 0.32 : 1}
-                    stroke={isPicked ? '#e8a800' : isMine ? '#1e3a8a' : 'transparent'}
+                    fillOpacity={empty ? 'var(--seat-empty-opacity)' : 1}
+                    stroke={isPicked ? '#e8a800' : isMine ? 'var(--ink)' : 'transparent'}
                     strokeWidth={isPicked || isMine ? 1.6 : 0.6}
                   />
                   {showNumbers && (
@@ -231,7 +231,7 @@ export function CategorySeatMap({
                       textAnchor="middle"
                       fontSize={s.n >= 100 ? SEAT * 0.4 : SEAT * 0.48}
                       fontWeight={500}
-                      fill={empty ? '#0f2747' : '#fff'}
+                      fill={empty ? 'var(--seat-empty-ink)' : '#fff'}
                       fillOpacity={empty ? 0.75 : 1}
                       pointerEvents="none"
                     >
@@ -252,7 +252,7 @@ export function CategorySeatMap({
                   x={x}
                   y={y + labelSize * 0.35}
                   textAnchor="middle"
-                  fill={r.row === highlightRow ? '#d99a00' : '#7088a8'}
+                  fill={r.row === highlightRow ? 'var(--color-gold-500)' : 'var(--row-label)'}
                 >
                   {r.row}
                 </text>
@@ -272,7 +272,7 @@ export function CategorySeatMap({
                   textAnchor="middle"
                   fontSize={ROW_GAP * 0.8}
                   fontWeight={500}
-                  fill="#8aa0bd"
+                  fill="var(--block-label)"
                 >
                   {b.name}
                 </text>
@@ -322,7 +322,7 @@ export function CategorySeatMap({
                   <li key={s.id} className="flex flex-wrap items-center gap-1.5">
                     <span className="font-bold text-ink">{s.nickname}</span>
                     <span className="text-ink-soft">{s.sex === 'M' ? 'L' : 'P'}</span>
-                    {s.want_swap && <span className="font-bold text-orange-600 dark:text-orange-300">MAU TUKAR</span>}
+                    {s.want_swap && <span className="font-bold text-[var(--swap-ink)]">MAU TUKAR</span>}
                     {s.is_duplicate && <span className="font-bold text-red-600 dark:text-red-300">duplikat</span>}
                     {s.x_username && (
                       <a className="underline decoration-gold-500" href={xUrl(s.x_username)} target="_blank" rel="noopener noreferrer nofollow">
@@ -382,7 +382,7 @@ function MiniBtn({
       title={label}
       onClick={onClick}
       disabled={disabled}
-      className="focus-ring grid h-9 w-9 place-items-center rounded-full border border-sky-100 bg-white text-base text-ink shadow-lift transition-colors hover:bg-sky-50 disabled:text-ink-soft/50"
+      className="focus-ring grid h-9 w-9 place-items-center rounded-full border border-[var(--soft-border)] bg-[var(--surface-2)] text-base text-ink shadow-lift transition-colors hover:bg-[var(--soft)] disabled:text-ink-soft/50"
     >
       {children}
     </button>

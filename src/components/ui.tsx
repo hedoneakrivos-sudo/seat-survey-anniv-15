@@ -11,7 +11,7 @@ import { cx } from '../lib/cx';
 export { cx };
 
 const fieldBase =
-  'block w-full rounded-xl border bg-white px-3 py-2.5 text-base text-ink transition-colors ' +
+  'block w-full rounded-xl border bg-[var(--surface-2)] px-3 py-2.5 text-base text-ink transition-colors ' +
   'placeholder:text-ink-soft/70 focus:border-gold-400 focus:outline-none focus:ring-2 focus:ring-gold-400/25 ' +
   'disabled:opacity-60';
 
@@ -19,7 +19,7 @@ export const fieldClass = (error?: string, warning?: string) =>
   cx(
     fieldBase,
     error
-      ? 'border-red-500'
+      ? 'border-red-500 dark:border-red-400'
       : warning
         ? 'border-amber-500'
         : 'border-[var(--line-strong)]',
@@ -50,11 +50,11 @@ export function Field({ id, label, required, error, warning, hint, children, cla
       </label>
       {children}
       {error ? (
-        <p id={`${id}-msg`} role="alert" className="mt-1.5 text-sm text-red-700">
+        <p id={`${id}-msg`} role="alert" className="mt-1.5 text-sm text-red-700 dark:text-red-300">
           {error}
         </p>
       ) : warning ? (
-        <p id={`${id}-msg`} className="mt-1.5 text-sm text-amber-800">
+        <p id={`${id}-msg`} className="mt-1.5 text-sm text-amber-800 dark:text-amber-300">
           {warning}
         </p>
       ) : hint ? (
@@ -106,8 +106,8 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 const variants: Record<Variant, string> = {
   primary:
     'font-display font-semibold tracking-wide bg-gold-400 text-gold-ink shadow-[0_6px_16px_-6px_rgb(232_168_0_/_0.7)] hover:bg-gold-300 active:scale-[0.98] disabled:opacity-60',
-  secondary: 'border border-white bg-white/80 text-ink hover:bg-white',
-  ghost: 'text-ink-soft hover:bg-white/60 hover:text-ink',
+  secondary: 'border border-[var(--chip-border)] bg-[var(--chip)] text-ink hover:bg-[var(--surface-2)]',
+  ghost: 'text-ink-soft hover:bg-[var(--chip)] hover:text-ink',
   danger: 'bg-red-500 text-white hover:bg-red-600 disabled:opacity-60',
 };
 
@@ -154,9 +154,9 @@ export function Card({ children, className }: { children: ReactNode; className?:
 
 export function Notice({ tone = 'info', children }: { tone?: 'info' | 'warn' | 'error'; children: ReactNode }) {
   const t = {
-    info: 'border-white bg-white/80 text-ink',
-    warn: 'border-amber-200 bg-amber-50/95 text-amber-900',
-    error: 'border-red-200 bg-red-50/95 text-red-800',
+    info: 'border-[var(--chip-border)] bg-[var(--chip)] text-ink',
+    warn: 'border-amber-200 bg-amber-50/95 text-amber-900 dark:border-amber-300/25 dark:bg-amber-400/10 dark:text-amber-100',
+    error: 'border-red-200 bg-red-50/95 text-red-800 dark:border-red-400/30 dark:bg-red-500/15 dark:text-red-100',
   }[tone];
   return (
     <div role={tone === 'error' ? 'alert' : undefined} className={cx('rounded-xl border px-3.5 py-2.5 text-sm', t)}>
@@ -167,9 +167,9 @@ export function Notice({ tone = 'info', children }: { tone?: 'info' | 'warn' | '
 
 export function Badge({ tone, children }: { tone: 'swap' | 'dup' | 'muted'; children: ReactNode }) {
   const t = {
-    swap: 'bg-orange-100 text-orange-800',
-    dup: 'bg-red-100 text-red-800',
-    muted: 'bg-white/80 text-ink-soft',
+    swap: 'bg-[var(--swap-bg)] text-[var(--swap-ink)]',
+    dup: 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-200',
+    muted: 'bg-[var(--chip)] text-ink-soft',
   }[tone];
   return (
     <span className={cx('inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium', t)}>{children}</span>

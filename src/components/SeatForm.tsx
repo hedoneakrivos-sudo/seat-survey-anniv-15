@@ -443,7 +443,7 @@ export function SeatForm({ initial, patch, selfId, submitLabel, onSubmit, onChan
                 onChange={(e) => set('want_swap', e.target.checked)}
                 className="peer sr-only"
               />
-              <span className="h-8 w-14 rounded-full bg-slate-300 transition peer-checked:bg-orange-500 peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-gold-500" />
+              <span className="h-8 w-14 rounded-full bg-[var(--line-strong)] transition peer-checked:bg-orange-500 peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-gold-500" />
               <span className="absolute left-1 top-1 h-6 w-6 rounded-full bg-[var(--surface-2)] shadow transition peer-checked:translate-x-6" />
             </span>
           </label>
@@ -486,7 +486,7 @@ export function SeatForm({ initial, patch, selfId, submitLabel, onSubmit, onChan
         className={cx(
           'flex gap-2',
           !isDesktop &&
-            'sticky bottom-0 z-10 -mx-4 -mb-4 rounded-b-4xl border-t-2 border-white/70 bg-[#eaf6fe] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3  ',
+            'sticky bottom-0 z-10 -mx-4 -mb-4 rounded-b-4xl border-t-2 border-[var(--chip-border)] bg-[var(--surface-2)] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3',
         )}
       >
         {!isDesktop && step > 0 && (
@@ -543,7 +543,7 @@ function HandleInput({
 }) {
   return (
     <div className="relative">
-      <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center font-bold text-slate-500" aria-hidden>
+      <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center font-medium text-ink-soft" aria-hidden>
         @
       </span>
       <Input

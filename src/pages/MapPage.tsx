@@ -88,14 +88,17 @@ function MapView({
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-pixel text-xs text-white/85">{EVENT.subtitle}</p>
-        <h1 className="title-3d mt-2 text-4xl sm:text-5xl">Pilih CAT kamu ☀️</h1>
-        <p className="mt-2 text-sm text-white/90 sm:text-base">
+        <p className="text-pixel text-xs text-[var(--on-sky-soft)]">{EVENT.subtitle}</p>
+        <h1 className="title-3d mt-2 text-4xl sm:text-5xl">
+          Pilih CAT kamu <span className="dark:hidden">☀️</span>
+          <span className="hidden dark:inline">🌙</span>
+        </h1>
+        <p className="mt-2 text-sm text-[var(--on-sky-soft)] sm:text-base">
           Tap zona di denah, lalu isi seat kamu.
           {status === 'ok' && totalAll > 0 && (
             <>
               {' '}
-              <span className="whitespace-nowrap font-semibold text-white">{totalAll} orang</span> sudah isi.
+              <span className="whitespace-nowrap font-semibold text-[var(--on-sky)]">{totalAll} orang</span> sudah isi.
             </>
           )}
         </p>
@@ -112,7 +115,7 @@ function MapView({
             <div
               role="tablist"
               aria-label="Tampilan peta"
-              className="flex rounded-full border border-white/90 bg-white/75 p-1"
+              className="flex rounded-full border border-[var(--chip-border)] bg-[var(--chip)] p-1"
             >
               <ViewTab active={view === 'venue'} onClick={() => setView('venue')}>
                 Denah
@@ -180,7 +183,7 @@ function MapView({
                   <button
                     type="button"
                     onClick={() => setView('detail')}
-                    className="focus-ring mt-2 min-h-11 w-full rounded-full border border-sky-100 bg-sky-50 text-sm font-medium text-ink transition-colors hover:bg-sky-100"
+                    className="focus-ring mt-2 min-h-11 w-full rounded-full border border-[var(--soft-border)] bg-[var(--soft)] text-sm font-medium text-ink transition-colors hover:bg-[var(--soft-hover)]"
                   >
                     🪑 Lihat kursi CAT {selected}
                   </button>
@@ -207,7 +210,7 @@ function MapView({
               setSheetOpen(false);
               setView('detail');
             }}
-            className="focus-ring mt-2 min-h-12 w-full rounded-full border border-sky-100 bg-sky-50 text-sm font-medium text-ink"
+            className="focus-ring mt-2 min-h-12 w-full rounded-full border border-[var(--soft-border)] bg-[var(--soft)] text-sm font-medium text-ink"
           >
             🪑 Lihat kursi CAT {selected}
           </button>
@@ -251,7 +254,7 @@ function Toggle({
       onClick={onClick}
       className={
         'focus-ring inline-flex min-h-10 min-w-10 shrink-0 items-center justify-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-colors ' +
-        (on ? 'border-gold-400 bg-gold-400 text-gold-ink' : 'border-white/90 bg-white/75 text-ink hover:bg-white')
+        (on ? 'border-gold-400 bg-gold-400 text-gold-ink' : 'border-[var(--chip-border)] bg-[var(--chip)] text-ink hover:bg-[var(--surface-2)]')
       }
     >
       {children}

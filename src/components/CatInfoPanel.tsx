@@ -29,7 +29,7 @@ export function CatInfoPanel({ category, stats, onFill, hideChip, ctaLabel = 'Is
       ) : (
         <div className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-2 font-display text-xl font-semibold text-ink">
-            <span className="h-3 w-3 rounded-full ring-2 ring-white" style={{ background: info.color }} aria-hidden />
+            <span className="h-3 w-3 rounded-full ring-2 ring-[var(--surface-2)]" style={{ background: info.color }} aria-hidden />
             CAT {category}
           </span>
           {layout && <span className="text-xs text-ink-soft">{formatGateList(layout.gates)}</span>}
@@ -69,7 +69,7 @@ export function CatInfoPanel({ category, stats, onFill, hideChip, ctaLabel = 'Is
       </div>
 
       {total === 0 && (
-        <p className="flex items-center gap-2 rounded-2xl bg-sky-50 px-3 py-2 text-sm text-ink">
+        <p className="flex items-center gap-2 rounded-2xl bg-[var(--soft)] px-3 py-2 text-sm text-ink">
           <SmileLoader className="h-5 w-5 shrink-0" spin={false} />
           Belum ada yang isi di sini, jadi yang pertama!
         </p>
@@ -84,8 +84,8 @@ export function CatInfoPanel({ category, stats, onFill, hideChip, ctaLabel = 'Is
 
 function Stat({ value, label, tone }: { value: number; label: string; tone?: 'swap' }) {
   return (
-    <div className="rounded-2xl bg-sky-50 px-3 py-2.5">
-      <div className={`font-display text-2xl font-semibold tabular-nums ${tone === 'swap' ? 'text-orange-600' : 'text-ink'}`}>{value}</div>
+    <div className="rounded-2xl bg-[var(--soft)] px-3 py-2.5">
+      <div className={`font-display text-2xl font-semibold tabular-nums ${tone === 'swap' ? 'text-[var(--swap-ink)]' : 'text-ink'}`}>{value}</div>
       <div className="text-xs text-ink-soft">{label}</div>
     </div>
   );

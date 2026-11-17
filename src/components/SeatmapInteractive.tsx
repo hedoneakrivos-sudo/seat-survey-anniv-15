@@ -400,11 +400,11 @@ function Tooltip({ text, swap, left, top }: { text: string; swap: number; left: 
   return (
     <div
       role="tooltip"
-      className="pointer-events-none absolute z-10 hidden -translate-x-1/2 -translate-y-[calc(100%+14px)] animate-pop-in rounded-xl border border-white bg-white px-3 py-2 text-sm text-ink shadow-lift md:block"
+      className="pointer-events-none absolute z-10 hidden -translate-x-1/2 -translate-y-[calc(100%+14px)] animate-pop-in rounded-xl border border-[var(--chip-border)] bg-[var(--surface-2)] px-3 py-2 text-sm text-ink shadow-lift md:block"
       style={{ left: `${l}%`, top: `${Math.max(12, top)}%` }}
     >
       {text}
-      {swap > 0 && <span className="ml-1 text-orange-600">· {swap} mau tukar</span>}
+      {swap > 0 && <span className="ml-1 text-[var(--swap-ink)]">· {swap} mau tukar</span>}
     </div>
   );
 }
@@ -427,7 +427,7 @@ function MapButton({
       title={label}
       onClick={onClick}
       disabled={disabled}
-      className="focus-ring grid h-9 w-9 place-items-center rounded-full border border-sky-100 bg-white text-base text-ink shadow-lift transition-colors hover:bg-sky-50 disabled:text-ink-soft/50"
+      className="focus-ring grid h-9 w-9 place-items-center rounded-full border border-[var(--soft-border)] bg-[var(--surface-2)] text-base text-ink shadow-lift transition-colors hover:bg-[var(--soft)] disabled:text-ink-soft/50"
     >
       {children}
     </button>

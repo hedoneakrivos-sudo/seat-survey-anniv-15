@@ -162,7 +162,7 @@ export default function SeatPage() {
         {row.status === 'loading' || row.status === 'idle' ? (
           <div className="grid gap-3 sm:grid-cols-2" aria-busy="true">
             {[0, 1].map((i) => (
-              <div key={i} className="h-36 animate-pulse rounded-2xl bg-white/50" />
+              <div key={i} className="h-36 animate-pulse rounded-2xl bg-[var(--chip)]" />
             ))}
           </div>
         ) : row.status === 'error' ? (
@@ -207,7 +207,7 @@ export default function SeatPage() {
             {row.status === 'ok' ? (
               <RowMiniMap layout={layout} rowLabel={live.row_label} mySeat={live.seat_number} seats={row.seats} />
             ) : (
-              <div className="h-16 animate-pulse rounded-xl bg-white/50" />
+              <div className="h-16 animate-pulse rounded-xl bg-[var(--chip)]" />
             )}
           </Card>
 
@@ -217,7 +217,7 @@ export default function SeatPage() {
               <h2 className="font-display font-semibold text-lg text-ink">Seluruh {layout.name}</h2>
               <RouterLink
                 to={`/?cat=${live.category}&view=detail`}
-                className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-sm font-medium text-ink hover:bg-white"
+                className="inline-flex items-center rounded-full bg-[var(--chip)] px-3 py-1 text-sm font-medium text-ink hover:bg-[var(--surface-2)]"
               >
                 Buka di peta besar
               </RouterLink>

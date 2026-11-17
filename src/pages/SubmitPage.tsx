@@ -132,7 +132,7 @@ export default function SubmitPage() {
         <div
           role="tablist"
           aria-label="Tampilan peta"
-          className="flex rounded-full bg-sky-50 p-1"
+          className="flex rounded-full bg-[var(--soft)] p-1"
         >
           <Tab active={mapView === 'venue'} onClick={() => setMapView('venue')}>
             Denah
@@ -177,12 +177,12 @@ export default function SubmitPage() {
 
   const header = (
     <header>
-      <p className="text-pixel text-xs text-white/85">{EVENT.subtitle}</p>
+      <p className="text-pixel text-xs text-[var(--on-sky-soft)]">{EVENT.subtitle}</p>
       <h1 id="form-title" className="title-3d mt-2 text-4xl sm:text-5xl">
         Kamu duduk di mana? 🎫
       </h1>
-      <p className="mt-2 text-sm text-white/90 sm:text-base">Pilih CAT di denah, lalu isi seat kamu.</p>
-      <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-ink">
+      <p className="mt-2 text-sm text-[var(--on-sky-soft)] sm:text-base">Pilih CAT di denah, lalu isi seat kamu.</p>
+      <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[var(--chip)] px-3 py-1 text-xs font-medium text-ink">
         <span className="h-1.5 w-1.5 rounded-full bg-gold-500" aria-hidden />
         {EVENT.venue} · {EVENT.dateLabel}
       </p>

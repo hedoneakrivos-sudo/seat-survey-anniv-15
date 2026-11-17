@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="description" content="Fan project tidak resmi: isi seat konser JKT48 15th Anniversary &quot;Ayo Senyumlah&quot; (Graha Unesa, 19 Des 2026), cek siapa di kiri-kananmu, dan cari teman tukar seat." />
     <title>Ayo Senyumlah · Seat Survey</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -13,7 +13,16 @@
       href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Inter:wght@400;500;600&display=swap"
     />
     <meta name="theme-color" content="#3d8ef0" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#3d8ef0" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#0a1230" media="(prefers-color-scheme: dark)" />
+    <script>
+      // pasang tema sebelum render supaya tidak berkedip
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('anniv15.theme'); } catch (e) {}
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
   <body>

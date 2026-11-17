@@ -70,7 +70,7 @@ export function CatChip({ category, selected, count, onClick, className, as = 'b
   );
   const base = cx(
     'inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border px-3.5 text-ink transition-colors',
-    selected ? 'border-gold-400 bg-gold-400/20' : 'border-white bg-white/80 hover:bg-white',
+    selected ? 'border-gold-400 bg-gold-400/20' : 'border-[var(--chip-border)] bg-[var(--chip)] hover:bg-[var(--surface-2)]',
     className,
   );
   if (as === 'span') return <span className={base}>{inner}</span>;

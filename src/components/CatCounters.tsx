@@ -64,15 +64,15 @@ function CounterChip({
       className={cx(
         'focus-ring relative flex w-32 shrink-0 flex-col gap-2 rounded-2xl border px-3 py-2.5 text-left transition-[background-color,border-color,transform] duration-150',
         selected
-          ? 'border-gold-400 bg-white shadow-[0_6px_18px_-8px_rgb(232_168_0_/_0.6)]'
-          : 'border-white/90 bg-white/90 hover:-translate-y-0.5 hover:bg-white',
+          ? 'border-gold-400 bg-[var(--surface-2)] shadow-[0_6px_18px_-8px_rgb(232_168_0_/_0.6)]'
+          : 'border-[var(--chip-border)] bg-[var(--chip)] hover:-translate-y-0.5 hover:bg-[var(--surface-2)]',
       )}
     >
       <span className="flex items-center gap-2">
-        <span className="h-2.5 w-2.5 shrink-0 rounded-full ring-2 ring-white" style={{ background: info.color }} aria-hidden />
+        <span className="h-2.5 w-2.5 shrink-0 rounded-full ring-2 ring-[var(--surface-2)]" style={{ background: info.color }} aria-hidden />
         <span className="whitespace-nowrap text-xs font-medium text-ink-soft">CAT {category}</span>
         {swap > 0 && (
-          <span className="ml-auto whitespace-nowrap rounded-full bg-orange-100 px-1.5 text-xs tabular-nums text-orange-700" title={`${swap} mau tukar`}>
+          <span className="ml-auto whitespace-nowrap rounded-full bg-[var(--swap-bg)] px-1.5 text-xs tabular-nums text-[var(--swap-ink)]" title={`${swap} mau tukar`}>
             {shownSwap}⇄
           </span>
         )}
@@ -82,7 +82,7 @@ function CounterChip({
         <span className="ml-1 font-sans text-xs font-normal text-ink-soft">orang</span>
       </span>
       {/* bar kapasitas: estimasi, jadi tanpa angka persen */}
-      <span className="block h-1 w-full overflow-hidden rounded-full bg-sky-100" aria-hidden>
+      <span className="block h-1 w-full overflow-hidden rounded-full bg-[var(--soft-hover)]" aria-hidden>
         <span className="block h-full rounded-full transition-[width] duration-500" style={{ width: `${pct}%`, background: info.color }} />
       </span>
       <span className="sr-only">

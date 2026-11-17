@@ -89,7 +89,7 @@ export default function EditSeatPage() {
     <div className="lg:grid lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-8">
       <section aria-labelledby="edit-title">
         <header className="mb-5">
-          <Link to={`/seat/${id}`} className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-sm font-medium text-ink hover:bg-white">
+          <Link to={`/seat/${id}`} className="inline-flex items-center rounded-full bg-[var(--chip)] px-3 py-1 text-sm font-medium text-ink hover:bg-[var(--surface-2)]">
             ← Kembali ke seat
           </Link>
           <h1 id="edit-title" className="title-3d mt-2 text-3xl sm:text-4xl">
