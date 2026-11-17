@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CategoryLayout } from '../config/seatLayout';
 import { getCatInfo } from '../config/catConfig';
 import { buildCategoryGeometry, type CatGeometry } from '../lib/seatGeometry';
-import { buildSeatGrid, PITCH, ROW_GAP, SEAT, type GridSeat, type SeatGrid } from '../lib/seatGrid';
+import { buildSeatGrid, type GridSeat, type SeatGrid } from '../lib/seatGrid';
+import { PLAN_SIZE, PLAN_ZONES } from '../config/seatZones2d';
 import { SEAT_STATE_FILL, SEAT_STATE_LABEL, seatState } from '../lib/seatState';
 import type { PublicSeat } from '../lib/types';
 import { usePanZoom } from '../hooks/usePanZoom';
@@ -69,8 +70,8 @@ export function CategorySeatMap({
   const home = grid.bbox;
   const pz = usePanZoom<SVGSVGElement>({
     home,
-    minWidth: PITCH * 8,
-    bounds: { x: home.x - home.width, y: home.y - home.height, width: home.width * 3, height: home.height * 3 },
+    minWidth: grid.seat * 10,
+    bounds: { x: 0, y: 0, width: PLAN_SIZE.width, height: PLAN_SIZE.height },
   });
   const [picked, setPicked] = useState<{ row: string; n: number } | null>(null);
   const info = getCatInfo(layout.category)!;
@@ -96,9 +97,9 @@ export function CategorySeatMap({
     if (centeredFor.current === key) return;
     centeredFor.current = key;
     // cukup dekat untuk baca nomor kursi
-    const w = Math.min(home.width, PITCH * 26);
+    const w = Math.min(home.width, grid.seat * 32);
     animateTo({ x: mine.x - w / 2, y: mine.y - (w * aspect) / 2, width: w, height: w * aspect }, 600);
-  }, [mine, aspect, animateTo, home.width]);
+  }, [mine, aspect, animateTo, home.width, grid.seat]);
 
   /** tap = kursi terdekat dari titik sentuh */
   const pickAt = (clientX: number, clientY: number) => {
@@ -115,7 +116,7 @@ export function CategorySeatMap({
         best = s;
       }
     }
-    if (!best || bd > Math.max(PITCH, pz.viewBox.width * 0.03)) return setPicked(null);
+    if (!best || bd > Math.max(grid.seat * 1.2, pz.viewBox.width * 0.03)) return setPicked(null);
     setPicked({ row: best.row, n: best.n });
     onPickSeat?.(best.row, best.n);
   };
@@ -124,9 +125,11 @@ export function CategorySeatMap({
   const zoom = pz.scale;
   const pickedList = picked ? (bySeat.get(`${picked.row}|${picked.n}`) ?? []) : [];
   const hiRow = highlightRow ? grid.rows.find((r) => r.row === highlightRow) : undefined;
+  const SEAT = grid.seat;
   // nomor kursi baru dibaca kalau kursi cukup besar di layar
-  const showNumbers = vb.width < PITCH * 55;
-  const labelSize = Math.min(ROW_GAP * 0.85, Math.max(6, vb.width / 45));
+  const showNumbers = vb.width < SEAT * 60;
+  const labelSize = Math.min(SEAT * 1.3, Math.max(SEAT * 0.7, vb.width / 55));
+  const toPts = (p: [number, number][]) => p.map((q) => q.join(',')).join(' ');
 
   return (
     <div className={cx('relative', className)}>
@@ -137,7 +140,7 @@ export function CategorySeatMap({
           className={cx('block w-full touch-none select-none', svgClassName ?? 'h-80')}
           // tinggi mengikuti bentuk CAT (tidak ada ruang kosong besar di HP),
           // tapi tidak melebihi tinggi dari svgClassName
-          style={{ aspectRatio: `${home.width} / ${home.height}`, height: 'auto', maxHeight: 'min(62vh, 560px)', minHeight: 180 }}
+          style={{ aspectRatio: `${home.width} / ${home.height}`, height: 'auto', maxHeight: 'min(50vh, 520px)', minHeight: 200 }}
           role="group"
           aria-label={`Denah kursi ${layout.name} tampak atas, panggung di atas. Geser untuk melihat, cubit untuk zoom, tap kursi untuk info.`}
           {...pz.handlers}
@@ -149,45 +152,44 @@ export function CategorySeatMap({
             pickAt(e.clientX, e.clientY);
           }}
         >
-          {/* panggung */}
-          {grid.stage.kind === 'bar' ? (
-            <g pointerEvents="none">
-              <rect
-                x={grid.stage.x}
-                y={grid.stage.y}
-                width={grid.stage.width}
-                height={grid.stage.height}
-                rx={grid.stage.height / 2}
-                fill="var(--stage)"
+          {/* CAT lain (redup) untuk konteks letak */}
+          <g pointerEvents="none">
+            {PLAN_ZONES.filter((z) => z.category !== layout.category).map((z) => (
+              <polygon key={z.id} points={z.points} fill={getCatInfo(z.category)!.color} fillOpacity={0.16} />
+            ))}
+          </g>
+
+          {/* panggung (main stage + catwalk + island) */}
+          <g pointerEvents="none">
+            <polygon points={toPts(grid.stage)} fill="var(--stage)" fillOpacity={0.9} strokeLinejoin="round" />
+            <text
+              x={grid.island[0]}
+              y={grid.island[1] + SEAT * 0.8}
+              textAnchor="middle"
+              fontSize={Math.max(SEAT * 2.2, 12)}
+              fontWeight={600}
+              fill="var(--stage-ink)"
+              letterSpacing={1.5}
+            >
+              PANGGUNG
+            </text>
+          </g>
+
+          {/* zona CAT ini */}
+          <g pointerEvents="none">
+            {grid.zones.map((z, i) => (
+              <polygon
+                key={i}
+                points={toPts(z)}
+                fill={info.color}
+                fillOpacity={0.12}
+                stroke={info.color}
+                strokeOpacity={0.7}
+                strokeWidth={Math.max(0.6, vb.width / 500)}
+                strokeLinejoin="round"
               />
-              <text
-                x={grid.stage.x + grid.stage.width / 2}
-                y={grid.stage.y + grid.stage.height * 0.7}
-                textAnchor="middle"
-                fontSize={grid.stage.height * 0.55}
-                fontWeight={600}
-                fill="var(--stage-ink)"
-                letterSpacing={2}
-              >
-                PANGGUNG
-              </text>
-            </g>
-          ) : (
-            <g pointerEvents="none">
-              <path d={grid.stage.d} fill="var(--stage)" />
-              <text
-                x={grid.stage.label[0]}
-                y={grid.stage.label[1] + ROW_GAP * 0.35}
-                textAnchor="middle"
-                fontSize={ROW_GAP * 0.95}
-                fontWeight={600}
-                fill="var(--stage-ink)"
-                letterSpacing={2}
-              >
-                PANGGUNG
-              </text>
-            </g>
-          )}
+            ))}
+          </g>
 
           {/* sorotan baris */}
           {hiRow?.path.map((line, i) => (
@@ -197,7 +199,7 @@ export function CategorySeatMap({
               fill="none"
               stroke="#f5c443"
               strokeOpacity={0.5}
-              strokeWidth={SEAT * 1.6}
+              strokeWidth={SEAT * 1.7}
               strokeLinecap="round"
               strokeLinejoin="round"
               pointerEvents="none"
@@ -212,27 +214,29 @@ export function CategorySeatMap({
               const st = seatState(list, isMine);
               const isPicked = picked?.row === s.row && picked?.n === s.n;
               const empty = st === 'empty';
+              const z = s.size;
               return (
                 <g key={`${s.row}|${s.n}`} transform={`translate(${s.x} ${s.y}) rotate(${s.angle})`}>
                   <rect
-                    x={-SEAT / 2}
-                    y={-SEAT / 2}
-                    width={SEAT}
-                    height={SEAT}
-                    rx={SEAT * 0.25}
+                    x={-z / 2}
+                    y={-z / 2}
+                    width={z}
+                    height={z}
+                    rx={z * 0.25}
                     fill={empty ? info.color : SEAT_STATE_FILL[st]}
                     fillOpacity={empty ? 'var(--seat-empty-opacity)' : 1}
                     stroke={isPicked ? '#e8a800' : isMine ? 'var(--ink)' : 'transparent'}
-                    strokeWidth={isPicked || isMine ? 1.6 : 0.6}
+                    strokeWidth={isPicked || isMine ? z * 0.22 : 0}
                   />
-                  {showNumbers && (
+                  {showNumbers && z > SEAT * 0.7 && (
                     <text
-                      y={SEAT * 0.1}
+                      y={z * 0.17}
                       textAnchor="middle"
-                      fontSize={s.n >= 100 ? SEAT * 0.4 : SEAT * 0.48}
+                      transform={`rotate(${-s.angle})`}
+                      fontSize={s.n >= 100 ? z * 0.4 : z * 0.48}
                       fontWeight={500}
                       fill={empty ? 'var(--seat-empty-ink)' : '#fff'}
-                      fillOpacity={empty ? 0.75 : 1}
+                      fillOpacity={empty ? 0.8 : 1}
                       pointerEvents="none"
                     >
                       {s.n}
@@ -243,40 +247,25 @@ export function CategorySeatMap({
             })}
           </g>
 
-          {/* label baris di kiri & kanan */}
-          <g pointerEvents="none" fontWeight={600} fontSize={labelSize}>
-            {grid.rows.map((r) =>
-              [r.left, r.right].map(([x, y], i) => (
-                <text
-                  key={`${r.row}${i}`}
-                  x={x}
-                  y={y + labelSize * 0.35}
-                  textAnchor="middle"
-                  fill={r.row === highlightRow ? 'var(--color-gold-500)' : 'var(--row-label)'}
-                >
-                  {r.row}
-                </text>
-              )),
-            )}
-          </g>
-
-          {/* nama blok di belakang baris terakhir */}
-          {zoom < 2.5 && (
-            <g pointerEvents="none">
-              {grid.blocks.map((b) => (
-                <text
-                  key={b.name}
-                  x={b.x}
-                  y={b.y}
-                  transform={`rotate(${b.angle} ${b.x} ${b.y})`}
-                  textAnchor="middle"
-                  fontSize={ROW_GAP * 0.8}
-                  fontWeight={500}
-                  fill="var(--block-label)"
-                >
-                  {b.name}
-                </text>
-              ))}
+          {/* label baris di kedua ujung (saat cukup zoom) */}
+          {zoom > 1.3 && (
+            <g pointerEvents="none" fontWeight={600} fontSize={labelSize}>
+              {grid.rows.map((r) =>
+                [r.left, r.right].map(([x, y], i) => (
+                  <text
+                    key={`${r.row}${i}`}
+                    x={x}
+                    y={y + labelSize * 0.35}
+                    textAnchor="middle"
+                    fill={r.row === highlightRow ? 'var(--color-gold-500)' : 'var(--row-label)'}
+                    stroke="var(--map-b)"
+                    strokeWidth={labelSize * 0.22}
+                    paintOrder="stroke"
+                  >
+                    {r.row}
+                  </text>
+                )),
+              )}
             </g>
           )}
 
@@ -347,7 +336,7 @@ export function CategorySeatMap({
 
       <Legend />
       <p className="mt-1 text-xs text-ink-soft">
-        Denah tampak atas (perkiraan) · panggung di atas · {layout.rows.length} baris · {layout.capacity} kursi
+        Denah tampak atas sesuai seatplan (posisi kursi perkiraan) · {layout.rows.length} baris · {layout.capacity} kursi
         {picked ? ` · ${SEAT_STATE_LABEL[seatState(pickedList, false)]}` : ''}
       </p>
     </div>
